@@ -59,7 +59,7 @@ pub(crate) trait Float:
     /// A mask for the significand
     const SIGNIFICAND_MASK: Self::Int;
 
-    // The implicit bit of the float format
+    /// The implicit bit of the float format
     const IMPLICIT_BIT: Self::Int;
 
     /// A mask for the exponent
@@ -171,5 +171,8 @@ macro_rules! float_impl {
     };
 }
 
+// FIXME: there aren't any intrinsics for f16 that I know of, do we need this?
+float_impl!(f16, u16, i16, i16, 16, 10);
 float_impl!(f32, u32, i32, i16, 32, 23);
 float_impl!(f64, u64, i64, i16, 64, 52);
+float_impl!(f128, u128, i128, i16, 128, 112);

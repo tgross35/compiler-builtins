@@ -213,16 +213,22 @@ These builtins are needed to support 128-bit integers, which are in the process 
 - [x] udivti3.c
 - [x] umodti3.c
 
+These builtins are needed to support 128-bit floating point numbers, which are
+in the process of being added to Rust.
+
+- [x] addtf3.c
+- [x] comparetf2.c
+- [x] divtf3.c
+- [x] multf3.c
+- [x] subtf3.c
+
 ## Unimplemented functions
 
-These builtins involve floating-point types ("`f128`", "`f80`" and complex numbers) that are not supported by Rust.
+These builtins involve floating-point types ("`f80`" and complex numbers) that are not supported by Rust.
 
-- ~~addtf3.c~~
-- ~~comparetf2.c~~
 - ~~divdc3.c~~
 - ~~divsc3.c~~
 - ~~divtc3.c~~
-- ~~divtf3.c~~
 - ~~divxc3.c~~
 - ~~extenddftf2.c~~
 - ~~extendsftf2.c~~
@@ -250,7 +256,6 @@ These builtins involve floating-point types ("`f128`", "`f80`" and complex numbe
 - ~~muldc3.c~~
 - ~~mulsc3.c~~
 - ~~multc3.c~~
-- ~~multf3.c~~
 - ~~mulxc3.c~~
 - ~~powitf2.c~~
 - ~~powixf2.c~~
@@ -264,7 +269,6 @@ These builtins involve floating-point types ("`f128`", "`f80`" and complex numbe
 - ~~ppc/gcc_qmul.c~~
 - ~~ppc/gcc_qsub.c~~
 - ~~ppc/multc3.c~~
-- ~~subtf3.c~~
 - ~~trunctfdf2.c~~
 - ~~trunctfsf2.c~~
 - ~~x86_64/floatdixf.c~~
