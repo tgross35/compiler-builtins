@@ -3,6 +3,7 @@ use core::ops;
 mod specialized_div_rem;
 
 pub mod addsub;
+mod big;
 pub mod leading_zeros;
 pub mod mul;
 pub mod sdiv;
@@ -54,9 +55,20 @@ pub(crate) trait Int:
     /// LUT used for maximizing the space covered and minimizing the computational cost of fuzzing
     /// in `testcrate`. For example, Self = u128 produces [0,1,2,7,8,15,16,31,32,63,64,95,96,111,
     /// 112,119,120,125,126,127].
-    const FUZZ_LENGTHS: [u8; 20];
+    const FUZZ_LENGTHS: [u8; 20] = make_fuzz_lengths(<Self as Int>::BITS);
+
     /// The number of entries of `FUZZ_LENGTHS` actually used. The maximum is 20 for u128.
-    const FUZZ_NUM: usize;
+    const FUZZ_NUM: usize = {
+        let log2 = (<Self as Int>::BITS - 1).count_ones() as usize;
+        if log2 == 3 {
+            // case for u8
+            6
+        } else {
+            // 3 entries on each extreme, 2 in the middle, and 4 for each scale of intermediate
+            // boundaries.
+            8 + (4 * (log2 - 4))
+        }
+    };
 
     fn unsigned(self) -> Self::UnsignedInt;
     fn from_unsigned(unsigned: Self::UnsignedInt) -> Self;
@@ -83,6 +95,52 @@ pub(crate) trait Int:
 }
 }
 
+pub(crate) const fn make_fuzz_lengths(bits: u32) -> [u8; 20] {
+    let mut v = [0u8; 20];
+    v[0] = 0;
+    v[1] = 1;
+    v[2] = 2; // important for parity and the iX::MIN case when reversed
+    let mut i = 3;
+
+    // No need for any more until the byte boundary, because there should be no algorithms
+    // that are sensitive to anything not next to byte boundaries after 2. We also scale
+    // in powers of two, which is important to prevent u128 corner tests from getting too
+    // big.
+    let mut l = 8;
+    loop {
+        if l >= ((bits / 2) as u8) {
+            break;
+        }
+        // get both sides of the byte boundary
+        v[i] = l - 1;
+        i += 1;
+        v[i] = l;
+        i += 1;
+        l *= 2;
+    }
+
+    if bits != 8 {
+        // add the lower side of the middle boundary
+        v[i] = ((bits / 2) - 1) as u8;
+        i += 1;
+    }
+
+    // We do not want to jump directly from the Self::BITS/2 boundary to the Self::BITS
+    // boundary because of algorithms that split the high part up. We reverse the scaling
+    // as we go to Self::BITS.
+    let mid = i;
+    let mut j = 1;
+    loop {
+        v[i] = (bits as u8) - (v[mid - j]) - 1;
+        if j == mid {
+            break;
+        }
+        i += 1;
+        j += 1;
+    }
+    v
+}
+
 macro_rules! int_impl_common {
     ($ty:ty) => {
         const BITS: u32 = <Self as Int>::ZERO.count_zeros();
@@ -92,64 +150,6 @@ macro_rules! int_impl_common {
         const ONE: Self = 1;
         const MIN: Self = <Self>::MIN;
         const MAX: Self = <Self>::MAX;
-
-        const FUZZ_LENGTHS: [u8; 20] = {
-            let bits = <Self as Int>::BITS;
-            let mut v = [0u8; 20];
-            v[0] = 0;
-            v[1] = 1;
-            v[2] = 2; // important for parity and the iX::MIN case when reversed
-            let mut i = 3;
-            // No need for any more until the byte boundary, because there should be no algorithms
-            // that are sensitive to anything not next to byte boundaries after 2. We also scale
-            // in powers of two, which is important to prevent u128 corner tests from getting too
-            // big.
-            let mut l = 8;
-            loop {
-                if l >= ((bits / 2) as u8) {
-                    break;
-                }
-                // get both sides of the byte boundary
-                v[i] = l - 1;
-                i += 1;
-                v[i] = l;
-                i += 1;
-                l *= 2;
-            }
-
-            if bits != 8 {
-                // add the lower side of the middle boundary
-                v[i] = ((bits / 2) - 1) as u8;
-                i += 1;
-            }
-
-            // We do not want to jump directly from the Self::BITS/2 boundary to the Self::BITS
-            // boundary because of algorithms that split the high part up. We reverse the scaling
-            // as we go to Self::BITS.
-            let mid = i;
-            let mut j = 1;
-            loop {
-                v[i] = (bits as u8) - (v[mid - j]) - 1;
-                if j == mid {
-                    break;
-                }
-                i += 1;
-                j += 1;
-            }
-            v
-        };
-
-        const FUZZ_NUM: usize = {
-            let log2 = (<Self as Int>::BITS - 1).count_ones() as usize;
-            if log2 == 3 {
-                // case for u8
-                6
-            } else {
-                // 3 entries on each extreme, 2 in the middle, and 4 for each scale of intermediate
-                // boundaries.
-                8 + (4 * (log2 - 4))
-            }
-        };
 
         fn from_bool(b: bool) -> Self {
             b as $ty
