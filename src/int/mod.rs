@@ -13,10 +13,33 @@ pub mod udiv;
 pub use self::leading_zeros::__clzsi2;
 
 public_test_dep! {
-/// Trait for some basic operations on integers
-pub(crate) trait Int:
-    Copy
+/// Minimal integer implementations needed on wide integers`
+pub(crate) trait MinInt: Copy
     + core::fmt::Debug
+    + ops::Not<Output = Self>
+{
+
+    /// Type with the same width but other signedness
+    type OtherSign: MinInt;
+    /// Unsigned version of Self
+    type UnsignedInt: MinInt;
+
+    /// If `Self` is a signed integer
+    const SIGNED: bool;
+
+    /// The bitwidth of the int type
+    const BITS: u32;
+
+    const ZERO: Self;
+    const ONE: Self;
+    const MIN: Self;
+    const MAX: Self;
+}
+}
+
+public_test_dep! {
+/// Trait for some basic operations on integers
+pub(crate) trait Int: MinInt
     + PartialEq
     + PartialOrd
     + ops::AddAssign
@@ -34,32 +57,15 @@ pub(crate) trait Int:
     + ops::BitOr<Output = Self>
     + ops::BitXor<Output = Self>
     + ops::BitAnd<Output = Self>
-    + ops::Not<Output = Self>
 {
-    /// Type with the same width but other signedness
-    type OtherSign: Int;
-    /// Unsigned version of Self
-    type UnsignedInt: Int;
-
-    /// If `Self` is a signed integer
-    const SIGNED: bool;
-
-    /// The bitwidth of the int type
-    const BITS: u32;
-
-    const ZERO: Self;
-    const ONE: Self;
-    const MIN: Self;
-    const MAX: Self;
-
     /// LUT used for maximizing the space covered and minimizing the computational cost of fuzzing
     /// in `testcrate`. For example, Self = u128 produces [0,1,2,7,8,15,16,31,32,63,64,95,96,111,
     /// 112,119,120,125,126,127].
-    const FUZZ_LENGTHS: [u8; 20] = make_fuzz_lengths(<Self as Int>::BITS);
+    const FUZZ_LENGTHS: [u8; 20] = make_fuzz_lengths(<Self as MinInt>::BITS);
 
     /// The number of entries of `FUZZ_LENGTHS` actually used. The maximum is 20 for u128.
     const FUZZ_NUM: usize = {
-        let log2 = (<Self as Int>::BITS - 1).count_ones() as usize;
+        let log2 = (<Self as MinInt>::BITS - 1).count_ones() as usize;
         if log2 == 3 {
             // case for u8
             6
@@ -143,14 +149,6 @@ pub(crate) const fn make_fuzz_lengths(bits: u32) -> [u8; 20] {
 
 macro_rules! int_impl_common {
     ($ty:ty) => {
-        const BITS: u32 = <Self as Int>::ZERO.count_zeros();
-        const SIGNED: bool = Self::MIN != Self::ZERO;
-
-        const ZERO: Self = 0;
-        const ONE: Self = 1;
-        const MIN: Self = <Self>::MIN;
-        const MAX: Self = <Self>::MAX;
-
         fn from_bool(b: bool) -> Self {
             b as $ty
         }
@@ -203,10 +201,20 @@ macro_rules! int_impl_common {
 
 macro_rules! int_impl {
     ($ity:ty, $uty:ty) => {
-        impl Int for $uty {
+        impl MinInt for $uty {
             type OtherSign = $ity;
             type UnsignedInt = $uty;
 
+            const BITS: u32 = <Self as MinInt>::ZERO.count_zeros();
+            const SIGNED: bool = Self::MIN != Self::ZERO;
+
+            const ZERO: Self = 0;
+            const ONE: Self = 1;
+            const MIN: Self = <Self>::MIN;
+            const MAX: Self = <Self>::MAX;
+        }
+
+        impl Int for $uty {
             fn unsigned(self) -> $uty {
                 self
             }
@@ -228,10 +236,20 @@ macro_rules! int_impl {
             int_impl_common!($uty);
         }
 
-        impl Int for $ity {
+        impl MinInt for $ity {
             type OtherSign = $uty;
             type UnsignedInt = $uty;
 
+            const BITS: u32 = <Self as MinInt>::ZERO.count_zeros();
+            const SIGNED: bool = Self::MIN != Self::ZERO;
+
+            const ZERO: Self = 0;
+            const ONE: Self = 1;
+            const MIN: Self = <Self>::MIN;
+            const MAX: Self = <Self>::MAX;
+        }
+
+        impl Int for $ity {
             fn unsigned(self) -> $uty {
                 self as $uty
             }
@@ -259,7 +277,7 @@ int_impl!(i128, u128);
 public_test_dep! {
 /// Trait for integers twice the bit width of another integer. This is implemented for all
 /// primitives except for `u8`, because there is not a smaller primitive.
-pub(crate) trait DInt: Int {
+pub(crate) trait DInt: MinInt {
     /// Integer that is half the bit width of the integer this trait is implemented for
     type H: HInt<D = Self> + Int;
 
@@ -279,7 +297,7 @@ public_test_dep! {
 /// primitives except for `u128`, because it there is not a larger primitive.
 pub(crate) trait HInt: Int {
     /// Integer that is double the bit width of the integer this trait is implemented for
-    type D: DInt<H = Self> + Int;
+    type D: DInt<H = Self> + MinInt;
 
     /// Widens (using default extension) the integer to have double bit width
     fn widen(self) -> Self::D;
@@ -305,7 +323,7 @@ macro_rules! impl_d_int {
                     self as $X
                 }
                 fn hi(self) -> Self::H {
-                    (self >> <$X as Int>::BITS) as $X
+                    (self >> <$X as MinInt>::BITS) as $X
                 }
                 fn lo_hi(self) -> (Self::H, Self::H) {
                     (self.lo(), self.hi())
@@ -331,7 +349,7 @@ macro_rules! impl_h_int {
                     (self as $uH) as $X
                 }
                 fn widen_hi(self) -> Self::D {
-                    (self as $X) << <$H as Int>::BITS
+                    (self as $X) << <$H as MinInt>::BITS
                 }
                 fn zero_widen_mul(self, rhs: Self) -> Self::D {
                     self.zero_widen().wrapping_mul(rhs.zero_widen())

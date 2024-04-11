@@ -1,6 +1,6 @@
 use core::ops;
 
-use super::int::Int;
+use super::int::{Int, MinInt};
 
 pub mod add;
 pub mod cmp;

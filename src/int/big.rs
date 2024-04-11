@@ -1,6 +1,8 @@
+//! Integers used for wide operations, larger than `u128`.
+
 #![allow(unused)]
 
-use crate::int::{DInt, HInt, Int};
+use crate::int::{DInt, HInt, Int, MinInt};
 use core::ops;
 
 const WORD_LO_MASK: u64 = 0x00000000ffffffff;
@@ -31,258 +33,257 @@ impl u256 {
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct i256([u64; 4]);
 
-impl Int for u256 {
+impl MinInt for u256 {
     type OtherSign = i256;
 
     type UnsignedInt = u256;
 
     const SIGNED: bool = false;
-
     const BITS: u32 = 256;
-
     const ZERO: Self = Self([0u64; 4]);
-
     const ONE: Self = Self([1, 0, 0, 0]);
-
     const MIN: Self = Self([0u64; 4]);
-
     const MAX: Self = Self([u64::MAX; 4]);
-
-    fn unsigned(self) -> Self::UnsignedInt {
-        self
-    }
-
-    fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
-        todo!()
-    }
-
-    fn from_bool(b: bool) -> Self {
-        todo!()
-    }
-
-    fn logical_shr(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn abs_diff(self, other: Self) -> Self::UnsignedInt {
-        todo!()
-    }
-
-    fn is_zero(self) -> bool {
-        todo!()
-    }
-
-    fn wrapping_neg(self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_add(self, other: Self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_mul(self, other: Self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_sub(self, other: Self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_shl(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn wrapping_shr(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn rotate_left(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn overflowing_add(self, other: Self) -> (Self, bool) {
-        todo!()
-    }
-
-    fn leading_zeros(self) -> u32 {
-        todo!()
-    }
 }
 
-impl Int for i256 {
+impl MinInt for i256 {
     type OtherSign = u256;
 
     type UnsignedInt = u256;
 
     const SIGNED: bool = false;
-
     const BITS: u32 = 256;
-
     const ZERO: Self = Self([0u64; 4]);
-
     const ONE: Self = Self([0, 0, 0, 1]);
-
     const MIN: Self = Self([0u64; 4]);
-
     const MAX: Self = Self([u64::MAX; 4]);
-
-    fn unsigned(self) -> Self::UnsignedInt {
-        todo!()
-    }
-
-    fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
-        todo!()
-    }
-
-    fn from_bool(b: bool) -> Self {
-        todo!()
-    }
-
-    fn logical_shr(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn abs_diff(self, other: Self) -> Self::UnsignedInt {
-        todo!()
-    }
-
-    fn is_zero(self) -> bool {
-        self == Self::ZERO
-    }
-
-    fn wrapping_neg(self) -> Self {
-        Self::ZERO.wrapping_sub(self)
-    }
-
-    fn wrapping_add(self, other: Self) -> Self {
-        self.overflowing_add(other).0
-    }
-
-    fn wrapping_mul(self, other: Self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_sub(self, other: Self) -> Self {
-        todo!()
-    }
-
-    fn wrapping_shl(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn wrapping_shr(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn rotate_left(self, other: u32) -> Self {
-        todo!()
-    }
-
-    fn overflowing_add(self, other: Self) -> (Self, bool) {
-        let x0 = (u128::from(self.0[0])).wrapping_add(u128::from(other.0[0]));
-        let v0 = x0 as u64;
-        let c0 = x0 >> 64;
-
-        let x1 = (u128::from(self.0[1]))
-            .wrapping_add(u128::from(other.0[1]))
-            .wrapping_add(c0);
-        let v1 = x1 as u64;
-        let c1 = x1 >> 64;
-
-        let x2 = (u128::from(self.0[2]))
-            .wrapping_add(u128::from(other.0[2]))
-            .wrapping_add(c1);
-        let v2 = x2 as u64;
-        let c2 = x2 >> 64;
-
-        let x3 = (u128::from(self.0[3]))
-            .wrapping_add(u128::from(other.0[3]))
-            .wrapping_add(c2);
-        let v3 = x3 as u64;
-        let c3 = x3 >> 64;
-
-        (Self([v0, v1, v2, v3]), c3 > 0)
-    }
-
-    fn leading_zeros(self) -> u32 {
-        todo!()
-    }
 }
+
+// impl Int for u256 {
+//     type OtherSign = i256;
+
+//     type UnsignedInt = u256;
+
+//     fn unsigned(self) -> Self::UnsignedInt {
+//         self
+//     }
+
+//     fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
+//         todo!()
+//     }
+
+//     fn from_bool(b: bool) -> Self {
+//         todo!()
+//     }
+
+//     fn logical_shr(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn abs_diff(self, other: Self) -> Self::UnsignedInt {
+//         todo!()
+//     }
+
+//     fn is_zero(self) -> bool {
+//         todo!()
+//     }
+
+//     fn wrapping_neg(self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_add(self, other: Self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_mul(self, other: Self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_sub(self, other: Self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_shl(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_shr(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn rotate_left(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn overflowing_add(self, other: Self) -> (Self, bool) {
+//         todo!()
+//     }
+
+//     fn leading_zeros(self) -> u32 {
+//         todo!()
+//     }
+// }
+
+// impl Int for i256 {
+
+//     fn unsigned(self) -> Self::UnsignedInt {
+//         todo!()
+//     }
+
+//     fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
+//         todo!()
+//     }
+
+//     fn from_bool(b: bool) -> Self {
+//         todo!()
+//     }
+
+//     fn logical_shr(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn abs_diff(self, other: Self) -> Self::UnsignedInt {
+//         todo!()
+//     }
+
+//     fn is_zero(self) -> bool {
+//         self == Self::ZERO
+//     }
+
+//     fn wrapping_neg(self) -> Self {
+//         Self::ZERO.wrapping_sub(self)
+//     }
+
+//     fn wrapping_add(self, other: Self) -> Self {
+//         self.overflowing_add(other).0
+//     }
+
+//     fn wrapping_mul(self, other: Self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_sub(self, other: Self) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_shl(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn wrapping_shr(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn rotate_left(self, other: u32) -> Self {
+//         todo!()
+//     }
+
+//     fn overflowing_add(self, other: Self) -> (Self, bool) {
+//         let x0 = (u128::from(self.0[0])).wrapping_add(u128::from(other.0[0]));
+//         let v0 = x0 as u64;
+//         let c0 = x0 >> 64;
+
+//         let x1 = (u128::from(self.0[1]))
+//             .wrapping_add(u128::from(other.0[1]))
+//             .wrapping_add(c0);
+//         let v1 = x1 as u64;
+//         let c1 = x1 >> 64;
+
+//         let x2 = (u128::from(self.0[2]))
+//             .wrapping_add(u128::from(other.0[2]))
+//             .wrapping_add(c1);
+//         let v2 = x2 as u64;
+//         let c2 = x2 >> 64;
+
+//         let x3 = (u128::from(self.0[3]))
+//             .wrapping_add(u128::from(other.0[3]))
+//             .wrapping_add(c2);
+//         let v3 = x3 as u64;
+//         let c3 = x3 >> 64;
+
+//         (Self([v0, v1, v2, v3]), c3 > 0)
+//     }
+
+//     fn leading_zeros(self) -> u32 {
+//         todo!()
+//     }
+// }
 
 macro_rules! impl_common {
     ($ty:ty) => {
-        impl ops::Add for $ty {
-            type Output = Self;
+        //         impl ops::Add for $ty {
+        //             type Output = Self;
 
-            fn add(self, rhs: Self) -> Self::Output {
-                let (val, wrapped) = self.overflowing_add(rhs);
-                debug_assert!(!wrapped, "attempted to add with overflow");
-                val
-            }
-        }
+        //             fn add(self, rhs: Self) -> Self::Output {
+        //                 let (val, wrapped) = self.overflowing_add(rhs);
+        //                 debug_assert!(!wrapped, "attempted to add with overflow");
+        //                 val
+        //             }
+        //         }
 
-        impl ops::AddAssign for $ty {
-            fn add_assign(&mut self, rhs: Self) {
-                *self = *self + rhs
-            }
-        }
+        //         impl ops::AddAssign for $ty {
+        //             fn add_assign(&mut self, rhs: Self) {
+        //                 *self = *self + rhs
+        //             }
+        //         }
 
-        impl ops::BitAnd for $ty {
-            type Output = Self;
+        //         impl ops::BitAnd for $ty {
+        //             type Output = Self;
 
-            fn bitand(self, rhs: Self) -> Self::Output {
-                Self([
-                    self.0[0] & rhs.0[0],
-                    self.0[1] & rhs.0[1],
-                    self.0[2] & rhs.0[2],
-                    self.0[3] & rhs.0[3],
-                ])
-            }
-        }
+        //             fn bitand(self, rhs: Self) -> Self::Output {
+        //                 Self([
+        //                     self.0[0] & rhs.0[0],
+        //                     self.0[1] & rhs.0[1],
+        //                     self.0[2] & rhs.0[2],
+        //                     self.0[3] & rhs.0[3],
+        //                 ])
+        //             }
+        //         }
 
-        impl ops::BitAndAssign for $ty {
-            fn bitand_assign(&mut self, rhs: Self) {
-                *self = *self & rhs
-            }
-        }
+        //         impl ops::BitAndAssign for $ty {
+        //             fn bitand_assign(&mut self, rhs: Self) {
+        //                 *self = *self & rhs
+        //             }
+        //         }
 
-        impl ops::BitOr for $ty {
-            type Output = Self;
+        //         impl ops::BitOr for $ty {
+        //             type Output = Self;
 
-            fn bitor(self, rhs: Self) -> Self::Output {
-                Self([
-                    self.0[0] | rhs.0[0],
-                    self.0[1] | rhs.0[1],
-                    self.0[2] | rhs.0[2],
-                    self.0[3] | rhs.0[3],
-                ])
-            }
-        }
+        //             fn bitor(self, rhs: Self) -> Self::Output {
+        //                 Self([
+        //                     self.0[0] | rhs.0[0],
+        //                     self.0[1] | rhs.0[1],
+        //                     self.0[2] | rhs.0[2],
+        //                     self.0[3] | rhs.0[3],
+        //                 ])
+        //             }
+        //         }
 
-        impl ops::BitOrAssign for $ty {
-            fn bitor_assign(&mut self, rhs: Self) {
-                *self = *self | rhs
-            }
-        }
+        //         impl ops::BitOrAssign for $ty {
+        //             fn bitor_assign(&mut self, rhs: Self) {
+        //                 *self = *self | rhs
+        //             }
+        //         }
 
-        impl ops::BitXor for $ty {
-            type Output = Self;
+        //         impl ops::BitXor for $ty {
+        //             type Output = Self;
 
-            fn bitxor(self, rhs: Self) -> Self::Output {
-                Self([
-                    self.0[0] ^ rhs.0[0],
-                    self.0[1] ^ rhs.0[1],
-                    self.0[2] ^ rhs.0[2],
-                    self.0[3] ^ rhs.0[3],
-                ])
-            }
-        }
+        //             fn bitxor(self, rhs: Self) -> Self::Output {
+        //                 Self([
+        //                     self.0[0] ^ rhs.0[0],
+        //                     self.0[1] ^ rhs.0[1],
+        //                     self.0[2] ^ rhs.0[2],
+        //                     self.0[3] ^ rhs.0[3],
+        //                 ])
+        //             }
+        //         }
 
-        impl ops::BitXorAssign for $ty {
-            fn bitxor_assign(&mut self, rhs: Self) {
-                *self = *self ^ rhs
-            }
-        }
+        //         impl ops::BitXorAssign for $ty {
+        //             fn bitxor_assign(&mut self, rhs: Self) {
+        //                 *self = *self ^ rhs
+        //             }
+        //         }
 
         impl ops::Not for $ty {
             type Output = Self;
@@ -297,49 +298,49 @@ macro_rules! impl_common {
 impl_common!(i256);
 impl_common!(u256);
 
-impl ops::Sub for u256 {
-    type Output = Self;
+// impl ops::Sub for u256 {
+//     type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
+//     fn sub(self, rhs: Self) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::Sub for i256 {
-    type Output = Self;
+// impl ops::Sub for i256 {
+//     type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
+//     fn sub(self, rhs: Self) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::SubAssign for u256 {
-    fn sub_assign(&mut self, rhs: Self) {
-        todo!()
-    }
-}
+// impl ops::SubAssign for u256 {
+//     fn sub_assign(&mut self, rhs: Self) {
+//         todo!()
+//     }
+// }
 
-impl ops::SubAssign for i256 {
-    fn sub_assign(&mut self, rhs: Self) {
-        todo!()
-    }
-}
+// impl ops::SubAssign for i256 {
+//     fn sub_assign(&mut self, rhs: Self) {
+//         todo!()
+//     }
+// }
 
-impl ops::Div for u256 {
-    type Output = Self;
+// impl ops::Div for u256 {
+//     type Output = Self;
 
-    fn div(self, rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
+//     fn div(self, rhs: Self) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::Div for i256 {
-    type Output = Self;
+// impl ops::Div for i256 {
+//     type Output = Self;
 
-    fn div(self, rhs: Self) -> Self::Output {
-        todo!()
-    }
-}
+//     fn div(self, rhs: Self) -> Self::Output {
+//         todo!()
+//     }
+// }
 
 impl ops::Shl<u32> for u256 {
     type Output = Self;
@@ -349,53 +350,53 @@ impl ops::Shl<u32> for u256 {
     }
 }
 
-impl ops::Shl<u32> for i256 {
-    type Output = Self;
+// impl ops::Shl<u32> for i256 {
+//     type Output = Self;
 
-    fn shl(self, rhs: u32) -> Self::Output {
-        todo!()
-    }
-}
+//     fn shl(self, rhs: u32) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::Shr<u32> for u256 {
-    type Output = Self;
+// impl ops::Shr<u32> for u256 {
+//     type Output = Self;
 
-    fn shr(self, rhs: u32) -> Self::Output {
-        todo!()
-    }
-}
+//     fn shr(self, rhs: u32) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::Shr<u32> for i256 {
-    type Output = Self;
+// impl ops::Shr<u32> for i256 {
+//     type Output = Self;
 
-    fn shr(self, rhs: u32) -> Self::Output {
-        todo!()
-    }
-}
+//     fn shr(self, rhs: u32) -> Self::Output {
+//         todo!()
+//     }
+// }
 
-impl ops::ShlAssign<i32> for u256 {
-    fn shl_assign(&mut self, rhs: i32) {
-        todo!()
-    }
-}
+// impl ops::ShlAssign<i32> for u256 {
+//     fn shl_assign(&mut self, rhs: i32) {
+//         todo!()
+//     }
+// }
 
-impl ops::ShlAssign<i32> for i256 {
-    fn shl_assign(&mut self, rhs: i32) {
-        todo!()
-    }
-}
+// impl ops::ShlAssign<i32> for i256 {
+//     fn shl_assign(&mut self, rhs: i32) {
+//         todo!()
+//     }
+// }
 
-impl ops::ShrAssign<u32> for u256 {
-    fn shr_assign(&mut self, rhs: u32) {
-        todo!()
-    }
-}
+// impl ops::ShrAssign<u32> for u256 {
+//     fn shr_assign(&mut self, rhs: u32) {
+//         todo!()
+//     }
+// }
 
-impl ops::ShrAssign<u32> for i256 {
-    fn shr_assign(&mut self, rhs: u32) {
-        todo!()
-    }
-}
+// impl ops::ShrAssign<u32> for i256 {
+//     fn shr_assign(&mut self, rhs: u32) {
+//         todo!()
+//     }
+// }
 
 macro_rules! word {
     (1, $val:expr) => {
@@ -560,27 +561,3 @@ impl DInt for i256 {
         todo!()
     }
 }
-
-// impl HInt for u128 {
-//     type D;
-
-//     fn widen(self) -> Self::D {
-//         todo!()
-//     }
-
-//     fn zero_widen(self) -> Self::D {
-//         todo!()
-//     }
-
-//     fn widen_hi(self) -> Self::D {
-//         todo!()
-//     }
-
-//     fn zero_widen_mul(self, rhs: Self) -> Self::D {
-//         todo!()
-//     }
-
-//     fn widen_mul(self, rhs: Self) -> Self::D {
-//         todo!()
-//     }
-// }
