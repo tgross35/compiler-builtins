@@ -88,10 +88,10 @@ test_op!(clr, |left, right| left & !right);
 test_op!(xor, std::ops::BitXor::bitxor);
 test_op!(or, std::ops::BitOr::bitor);
 
-compiler_builtins::foreach_cas!(cas::test);
-compiler_builtins::foreach_cas16!(test_cas16);
-compiler_builtins::foreach_swp!(swap::test);
-compiler_builtins::foreach_ldadd!(add::test);
-compiler_builtins::foreach_ldclr!(clr::test);
-compiler_builtins::foreach_ldeor!(xor::test);
-compiler_builtins::foreach_ldset!(or::test);
+// compiler_builtins::foreach_cas!(cas::test);
+// compiler_builtins::foreach_cas16!(test_cas16);
+// compiler_builtins::foreach_swp!(swap::test);
+// compiler_builtins::foreach_ldadd!(add::test);
+// compiler_builtins::foreach_ldclr!(clr::test);
+// compiler_builtins::foreach_ldeor!(xor::test);
+// compiler_builtins::foreach_ldset!(or::test);

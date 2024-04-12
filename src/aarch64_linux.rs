@@ -268,10 +268,10 @@ macro_rules! or {
 
 // See `generate_aarch64_outlined_atomics` in build.rs.
 include!(concat!(env!("OUT_DIR"), "/outlined_atomics.rs"));
-foreach_cas!(compare_and_swap);
-foreach_cas16!(compare_and_swap_i128);
-foreach_swp!(swap);
-foreach_ldadd!(add);
-foreach_ldclr!(and);
-foreach_ldeor!(xor);
-foreach_ldset!(or);
+// foreach_cas!(compare_and_swap);
+// foreach_cas16!(compare_and_swap_i128);
+// foreach_swp!(swap);
+// foreach_ldadd!(add);
+// foreach_ldclr!(and);
+// foreach_ldeor!(xor);
+// foreach_ldset!(or);

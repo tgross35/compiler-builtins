@@ -1,4 +1,6 @@
 #![allow(unused_macros)]
+#![feature(f128)]
+#![feature(f16)]
 
 use testcrate::*;
 
@@ -80,13 +82,13 @@ macro_rules! float_sum {
                 let sub1: $f = $fn_sub(x, y);
                 if !Float::eq_repr(add0, add1) {
                     panic!(
-                        "{}({}, {}): std: {}, builtins: {}",
+                        "{}({:?}, {:?}): std: {:?}, builtins: {:?}",
                         stringify!($fn_add), x, y, add0, add1
                     );
                 }
                 if !Float::eq_repr(sub0, sub1) {
                     panic!(
-                        "{}({}, {}): std: {}, builtins: {}",
+                        "{:?}({:?}, {:?}): std: {:?}, builtins: {:?}",
                         stringify!($fn_sub), x, y, sub0, sub1
                     );
                 }
@@ -99,14 +101,15 @@ macro_rules! float_sum {
 #[test]
 fn float_addsub() {
     use compiler_builtins::float::{
-        add::{__adddf3, __addsf3},
-        sub::{__subdf3, __subsf3},
+        add::{__adddf3, __addsf3, __addtf3},
+        sub::{__subdf3, __subsf3, __subtf3},
         Float,
     };
 
     float_sum!(
         f32, __addsf3, __subsf3;
         f64, __adddf3, __subdf3;
+        f128, __addtf3, __subtf3;
     );
 }
 
