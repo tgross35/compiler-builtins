@@ -187,7 +187,6 @@ macro_rules! impl_common {
 impl_common!(i256);
 impl_common!(u256);
 
-
 impl ops::Shl<u32> for u256 {
     type Output = Self;
 

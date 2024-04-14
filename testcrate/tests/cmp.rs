@@ -33,7 +33,7 @@ macro_rules! cmp {
 fn float_comparisons() {
     use compiler_builtins::float::cmp::{
         __eqdf2, __eqsf2, __eqtf2, __gedf2, __gesf2, __getf2, __gtdf2, __gtsf2, __gttf2, __ledf2,
-        __lesf2, __letft, __ltdf2, __ltsf2, __lttf2, __nedf2, __nesf2, __netf2, __unorddf2,
+        __lesf2, __letf2, __ltdf2, __ltsf2, __lttf2, __nedf2, __nesf2, __netf2, __unorddf2,
         __unordsf2, __unordtf2,
     };
 
