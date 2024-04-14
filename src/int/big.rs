@@ -59,94 +59,7 @@ impl MinInt for i256 {
     const MAX: Self = Self([u64::MAX; 4]);
 }
 
-// impl Int for u256 {
-//     type OtherSign = i256;
-
-//     type UnsignedInt = u256;
-
-//     fn unsigned(self) -> Self::UnsignedInt {
-//         self
-//     }
-
-//     fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
-//         todo!()
-//     }
-
-//     fn from_bool(b: bool) -> Self {
-//         todo!()
-//     }
-
-//     fn logical_shr(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn abs_diff(self, other: Self) -> Self::UnsignedInt {
-//         todo!()
-//     }
-
-//     fn is_zero(self) -> bool {
-//         todo!()
-//     }
-
-//     fn wrapping_neg(self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_add(self, other: Self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_mul(self, other: Self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_sub(self, other: Self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_shl(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_shr(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn rotate_left(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn overflowing_add(self, other: Self) -> (Self, bool) {
-//         todo!()
-//     }
-
-//     fn leading_zeros(self) -> u32 {
-//         todo!()
-//     }
-// }
-
 // impl Int for i256 {
-
-//     fn unsigned(self) -> Self::UnsignedInt {
-//         todo!()
-//     }
-
-//     fn from_unsigned(unsigned: Self::UnsignedInt) -> Self {
-//         todo!()
-//     }
-
-//     fn from_bool(b: bool) -> Self {
-//         todo!()
-//     }
-
-//     fn logical_shr(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn abs_diff(self, other: Self) -> Self::UnsignedInt {
-//         todo!()
-//     }
-
 //     fn is_zero(self) -> bool {
 //         self == Self::ZERO
 //     }
@@ -158,27 +71,7 @@ impl MinInt for i256 {
 //     fn wrapping_add(self, other: Self) -> Self {
 //         self.overflowing_add(other).0
 //     }
-
-//     fn wrapping_mul(self, other: Self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_sub(self, other: Self) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_shl(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn wrapping_shr(self, other: u32) -> Self {
-//         todo!()
-//     }
-
-//     fn rotate_left(self, other: u32) -> Self {
-//         todo!()
-//     }
-
+//
 //     fn overflowing_add(self, other: Self) -> (Self, bool) {
 //         let x0 = (u128::from(self.0[0])).wrapping_add(u128::from(other.0[0]));
 //         let v0 = x0 as u64;
@@ -203,10 +96,6 @@ impl MinInt for i256 {
 //         let c3 = x3 >> 64;
 
 //         (Self([v0, v1, v2, v3]), c3 > 0)
-//     }
-
-//     fn leading_zeros(self) -> u32 {
-//         todo!()
 //     }
 // }
 
@@ -298,49 +187,6 @@ macro_rules! impl_common {
 impl_common!(i256);
 impl_common!(u256);
 
-// impl ops::Sub for u256 {
-//     type Output = Self;
-
-//     fn sub(self, rhs: Self) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::Sub for i256 {
-//     type Output = Self;
-
-//     fn sub(self, rhs: Self) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::SubAssign for u256 {
-//     fn sub_assign(&mut self, rhs: Self) {
-//         todo!()
-//     }
-// }
-
-// impl ops::SubAssign for i256 {
-//     fn sub_assign(&mut self, rhs: Self) {
-//         todo!()
-//     }
-// }
-
-// impl ops::Div for u256 {
-//     type Output = Self;
-
-//     fn div(self, rhs: Self) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::Div for i256 {
-//     type Output = Self;
-
-//     fn div(self, rhs: Self) -> Self::Output {
-//         todo!()
-//     }
-// }
 
 impl ops::Shl<u32> for u256 {
     type Output = Self;
@@ -349,54 +195,6 @@ impl ops::Shl<u32> for u256 {
         todo!()
     }
 }
-
-// impl ops::Shl<u32> for i256 {
-//     type Output = Self;
-
-//     fn shl(self, rhs: u32) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::Shr<u32> for u256 {
-//     type Output = Self;
-
-//     fn shr(self, rhs: u32) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::Shr<u32> for i256 {
-//     type Output = Self;
-
-//     fn shr(self, rhs: u32) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl ops::ShlAssign<i32> for u256 {
-//     fn shl_assign(&mut self, rhs: i32) {
-//         todo!()
-//     }
-// }
-
-// impl ops::ShlAssign<i32> for i256 {
-//     fn shl_assign(&mut self, rhs: i32) {
-//         todo!()
-//     }
-// }
-
-// impl ops::ShrAssign<u32> for u256 {
-//     fn shr_assign(&mut self, rhs: u32) {
-//         todo!()
-//     }
-// }
-
-// impl ops::ShrAssign<u32> for i256 {
-//     fn shr_assign(&mut self, rhs: u32) {
-//         todo!()
-//     }
-// }
 
 macro_rules! word {
     (1, $val:expr) => {

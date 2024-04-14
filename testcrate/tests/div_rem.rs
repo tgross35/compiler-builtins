@@ -136,13 +136,14 @@ macro_rules! float {
 #[test]
 fn float_div() {
     use compiler_builtins::float::{
-        div::{__divdf3, __divsf3},
+        div::{__divdf3, __divsf3, __divtf3},
         Float,
     };
 
     float!(
         f32, __divsf3;
         f64, __divdf3;
+        f128, __dvtf3;
     );
 }
 

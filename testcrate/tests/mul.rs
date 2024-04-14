@@ -105,13 +105,14 @@ macro_rules! float_mul {
 #[test]
 fn float_mul() {
     use compiler_builtins::float::{
-        mul::{__muldf3, __mulsf3},
+        mul::{__muldf3, __mulsf3, __multf3},
         Float,
     };
 
     float_mul!(
         f32, __mulsf3;
         f64, __muldf3;
+        f128, __multf3;
     );
 }
 
