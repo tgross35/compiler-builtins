@@ -1,4 +1,6 @@
 #![allow(unused_macros)]
+#![feature(f128)]
+#![feature(f16)]
 
 use testcrate::*;
 
@@ -91,7 +93,7 @@ macro_rules! float_mul {
                 if !(Float::is_subnormal(mul0) || Float::is_subnormal(mul1)) {
                     if !Float::eq_repr(mul0, mul1) {
                         panic!(
-                            "{}({}, {}): std: {}, builtins: {}",
+                            "{}({:?}, {:?}): std: {:?}, builtins: {:?}",
                             stringify!($fn), x, y, mul0, mul1
                         );
                     }

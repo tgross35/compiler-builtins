@@ -13,7 +13,7 @@ pub mod udiv;
 pub use self::leading_zeros::__clzsi2;
 
 public_test_dep! {
-/// Minimal integer implementations needed on wide integers`
+/// Minimal integer implementations needed on all integer types, including wide integers.
 pub(crate) trait MinInt: Copy
     + core::fmt::Debug
     + ops::Not<Output = Self>
