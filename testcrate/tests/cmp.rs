@@ -18,7 +18,10 @@ macro_rules! cmp {
             };
             let cmp1 = $fn($x, $y);
             if cmp0 != cmp1 {
-                panic!("{}({}, {}): std: {}, builtins: {}", stringify!($fn_builtins), $x, $y, cmp0, cmp1);
+                panic!(
+                    "{}({:?}, {:?}): std: {:?}, builtins: {:?}",
+                    stringify!($fn_builtins), $x, $y, cmp0, cmp1
+                );
             }
         )*
     };
