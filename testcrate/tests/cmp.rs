@@ -28,7 +28,8 @@ macro_rules! cmp {
 fn float_comparisons() {
     use compiler_builtins::float::cmp::{
         __eqdf2, __eqsf2, __gedf2, __gesf2, __gtdf2, __gtsf2, __ledf2, __lesf2, __ltdf2, __ltsf2,
-        __nedf2, __nesf2, __unorddf2, __unordsf2,
+        __nedf2, __nesf2, __unordtf2, __unorddf2, __unordsf2,
+        __lttf2, __letft, __eqtf2, __getf2, __gttf2, __netf2
     };
 
     fuzz_float_2(N, |x: f32, y: f32| {
@@ -51,6 +52,17 @@ fn float_comparisons() {
             -1, __gedf2;
             -1, __gtdf2;
             1, __nedf2;
+        );
+    });
+    fuzz_float_2(N, |x: f128, y: f128| {
+        assert_eq!(__unordtf2(x, y) != 0, x.is_nan() || y.is_nan());
+        cmp!(x, y,
+            1, __lttf2;
+            1, __letf2;
+            1, __eqtf2;
+            -1, __getf2;
+            -1, __gttf2;
+            1, __netf2;
         );
     });
 }
