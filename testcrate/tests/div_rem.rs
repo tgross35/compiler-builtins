@@ -145,7 +145,7 @@ fn float_div() {
     float!(
         f32, __divsf3;
         f64, __divdf3;
-        f128, __dvtf3;
+        f128, __divtf3;
     );
 }
 
