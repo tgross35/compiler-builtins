@@ -114,7 +114,7 @@ macro_rules! float {
                 #[cfg(not(target_arch = "arm"))]
                 if !Float::eq_repr(quo0, quo1) {
                     panic!(
-                        "{}({}, {}): std: {}, builtins: {}",
+                        "{}({:?}, {:?}): std: {:?}, builtins: {:?}",
                         stringify!($fn), x, y, quo0, quo1
                     );
                 }
@@ -124,7 +124,7 @@ macro_rules! float {
                 if !(Float::is_subnormal(quo0) || Float::is_subnormal(quo1)) {
                     if !Float::eq_repr(quo0, quo1) {
                         panic!(
-                            "{}({}, {}): std: {}, builtins: {}",
+                            "{}({:?}, {:?}): std: {:?}, builtins: {:?}",
                             stringify!($fn), x, y, quo0, quo1
                         );
                     }
