@@ -136,18 +136,17 @@ macro_rules! impl_common {
         //             }
         //         }
 
-        //         impl ops::BitOr for $ty {
-        //             type Output = Self;
+        impl ops::BitOr for $ty {
+            type Output = Self;
 
-        //             fn bitor(self, rhs: Self) -> Self::Output {
-        //                 Self([
-        //                     self.0[0] | rhs.0[0],
-        //                     self.0[1] | rhs.0[1],
-        //                     self.0[2] | rhs.0[2],
-        //                     self.0[3] | rhs.0[3],
-        //                 ])
-        //             }
-        //         }
+            fn bitor(mut self, rhs: Self) -> Self::Output {
+                self.0[0] |= rhs.0[0];
+                self.0[1] |= rhs.0[1];
+                self.0[2] |= rhs.0[2];
+                self.0[3] |= rhs.0[3];
+                self
+            }
+        }
 
         //         impl ops::BitOrAssign for $ty {
         //             fn bitor_assign(&mut self, rhs: Self) {
@@ -181,19 +180,20 @@ macro_rules! impl_common {
                 Self([!self.0[0], !self.0[1], !self.0[2], !self.0[3]])
             }
         }
+
+        impl ops::Shl<u32> for $ty {
+            type Output = Self;
+
+            fn shl(self, rhs: u32) -> Self::Output {
+                todo!()
+            }
+        }
     };
 }
 
 impl_common!(i256);
 impl_common!(u256);
 
-impl ops::Shl<u32> for u256 {
-    type Output = Self;
-
-    fn shl(self, rhs: u32) -> Self::Output {
-        todo!()
-    }
-}
 
 macro_rules! word {
     (1, $val:expr) => {
@@ -221,10 +221,6 @@ impl HInt for u128 {
 
     fn zero_widen(self) -> Self::D {
         self.widen()
-    }
-
-    fn widen_hi(self) -> Self::D {
-        self.widen() << 128
     }
 
     fn zero_widen_mul(self, rhs: Self) -> Self::D {
@@ -293,10 +289,6 @@ impl HInt for i128 {
         self.unsigned().zero_widen().as_signed()
     }
 
-    fn widen_hi(self) -> Self::D {
-        todo!()
-    }
-
     fn zero_widen_mul(self, rhs: Self) -> Self::D {
         self.unsigned().zero_widen_mul(rhs.unsigned()).as_signed()
     }
@@ -323,19 +315,17 @@ impl DInt for u256 {
     type H = u128;
 
     fn lo(self) -> Self::H {
-        todo!()
+        let mut tmp = [0u8; 16];
+        tmp[..8].copy_from_slice(&self.0[0].to_le_bytes());
+        tmp[8..].copy_from_slice(&self.0[1].to_le_bytes());
+        u128::from_le_bytes(tmp)
     }
 
     fn hi(self) -> Self::H {
-        todo!()
-    }
-
-    fn lo_hi(self) -> (Self::H, Self::H) {
-        todo!()
-    }
-
-    fn from_lo_hi(lo: Self::H, hi: Self::H) -> Self {
-        todo!()
+        let mut tmp = [0u8; 16];
+        tmp[..8].copy_from_slice(&self.0[2].to_le_bytes());
+        tmp[8..].copy_from_slice(&self.0[3].to_le_bytes());
+        u128::from_le_bytes(tmp)
     }
 }
 
@@ -343,18 +333,16 @@ impl DInt for i256 {
     type H = i128;
 
     fn lo(self) -> Self::H {
-        todo!()
+        let mut tmp = [0u8; 16];
+        tmp[..8].copy_from_slice(&self.0[0].to_le_bytes());
+        tmp[8..].copy_from_slice(&self.0[1].to_le_bytes());
+        i128::from_le_bytes(tmp)
     }
 
     fn hi(self) -> Self::H {
-        todo!()
-    }
-
-    fn lo_hi(self) -> (Self::H, Self::H) {
-        todo!()
-    }
-
-    fn from_lo_hi(lo: Self::H, hi: Self::H) -> Self {
-        todo!()
+        let mut tmp = [0u8; 16];
+        tmp[..8].copy_from_slice(&self.0[2].to_le_bytes());
+        tmp[8..].copy_from_slice(&self.0[3].to_le_bytes());
+        i128::from_le_bytes(tmp)
     }
 }

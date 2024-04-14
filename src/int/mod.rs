@@ -16,7 +16,9 @@ public_test_dep! {
 /// Minimal integer implementations needed on all integer types, including wide integers.
 pub(crate) trait MinInt: Copy
     + core::fmt::Debug
+    + ops::BitOr<Output = Self>
     + ops::Not<Output = Self>
+    + ops::Shl<u32, Output = Self>
 {
 
     /// Type with the same width but other signedness
@@ -52,9 +54,7 @@ pub(crate) trait Int: MinInt
     + ops::Add<Output = Self>
     + ops::Sub<Output = Self>
     + ops::Div<Output = Self>
-    + ops::Shl<u32, Output = Self>
     + ops::Shr<u32, Output = Self>
-    + ops::BitOr<Output = Self>
     + ops::BitXor<Output = Self>
     + ops::BitAnd<Output = Self>
 {
@@ -279,16 +279,20 @@ public_test_dep! {
 /// primitives except for `u8`, because there is not a smaller primitive.
 pub(crate) trait DInt: MinInt {
     /// Integer that is half the bit width of the integer this trait is implemented for
-    type H: HInt<D = Self> + Int;
+    type H: HInt<D = Self>;
 
     /// Returns the low half of `self`
     fn lo(self) -> Self::H;
     /// Returns the high half of `self`
     fn hi(self) -> Self::H;
     /// Returns the low and high halves of `self` as a tuple
-    fn lo_hi(self) -> (Self::H, Self::H);
+    fn lo_hi(self) -> (Self::H, Self::H) {
+        (self.lo(), self.hi())
+    }
     /// Constructs an integer using lower and higher half parts
-    fn from_lo_hi(lo: Self::H, hi: Self::H) -> Self;
+    fn from_lo_hi(lo: Self::H, hi: Self::H) -> Self {
+        lo.zero_widen() | hi.widen_hi()
+    }
 }
 }
 
@@ -305,7 +309,9 @@ pub(crate) trait HInt: Int {
     /// around problems with associated type bounds (such as `Int<Othersign: DInt>`) being unstable
     fn zero_widen(self) -> Self::D;
     /// Widens the integer to have double bit width and shifts the integer into the higher bits
-    fn widen_hi(self) -> Self::D;
+    fn widen_hi(self) -> Self::D {
+        self.widen() << <Self as MinInt>::BITS
+    }
     /// Widening multiplication with zero widening. This cannot overflow.
     fn zero_widen_mul(self, rhs: Self) -> Self::D;
     /// Widening multiplication. This cannot overflow.
@@ -325,12 +331,6 @@ macro_rules! impl_d_int {
                 fn hi(self) -> Self::H {
                     (self >> <$X as MinInt>::BITS) as $X
                 }
-                fn lo_hi(self) -> (Self::H, Self::H) {
-                    (self.lo(), self.hi())
-                }
-                fn from_lo_hi(lo: Self::H, hi: Self::H) -> Self {
-                    lo.zero_widen() | hi.widen_hi()
-                }
             }
         )*
     };
@@ -347,9 +347,6 @@ macro_rules! impl_h_int {
                 }
                 fn zero_widen(self) -> Self::D {
                     (self as $uH) as $X
-                }
-                fn widen_hi(self) -> Self::D {
-                    (self as $X) << <$H as MinInt>::BITS
                 }
                 fn zero_widen_mul(self, rhs: Self) -> Self::D {
                     self.zero_widen().wrapping_mul(rhs.zero_widen())
