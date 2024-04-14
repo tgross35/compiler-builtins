@@ -471,7 +471,7 @@ where
     let one = F::Int::ONE;
     let zero = F::Int::ZERO;
     let hw = F::BITS / 2;
-    let lo_mask = u64::MAX >> hw;
+    let lo_mask = if hw == 64 { 0 } else { u64::MAX >> hw };
 
     let significand_bits = F::SIGNIFICAND_BITS;
     let max_exponent = F::EXPONENT_MAX;
