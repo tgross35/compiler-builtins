@@ -14,8 +14,6 @@
 //! correct rounding.
 #![no_std]
 
-use core::ops;
-
 use compiler_builtins::float::Float;
 use compiler_builtins::int::{Int, MinInt};
 
