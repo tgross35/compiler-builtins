@@ -12,18 +12,18 @@ const WORD_FULL_MASK: u64 = 0xffffffffffffffff;
 // Stored little endian
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct u256([u64; 4]);
+pub struct u256(pub [u64; 4]);
 
 impl u256 {
     /// Reinterpret as a signed integer
-    fn as_signed(self) -> i256 {
+    pub fn signed(self) -> i256 {
         i256(self.0)
     }
 }
 
-impl u256 {
+impl i256 {
     /// Reinterpret as an unsigned integer
-    fn as_unsigned(self) -> u256 {
+    pub fn unsigned(self) -> u256 {
         u256(self.0)
     }
 }
@@ -31,7 +31,7 @@ impl u256 {
 // Stored little endian
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub struct i256([u64; 4]);
+pub struct i256(pub [u64; 4]);
 
 impl MinInt for u256 {
     type OtherSign = i256;
@@ -194,7 +194,6 @@ macro_rules! impl_common {
 impl_common!(i256);
 impl_common!(u256);
 
-
 macro_rules! word {
     (1, $val:expr) => {
         (($val >> (32 * 3)) & Self::from(WORD_LO_MASK)) as u64
@@ -280,34 +279,36 @@ impl HInt for i128 {
     type D = i256;
 
     fn widen(self) -> Self::D {
-        let w0 = self & i128::from(u64::MAX);
-        let w1 = (self >> u64::BITS) & i128::from(u64::MAX);
-        i256([w0 as u64, w1 as u64, u64::MAX, u64::MAX])
+        let mut ret = self.unsigned().zero_widen().signed();
+        if self.is_negative() {
+            ret.0[2] = u64::MAX;
+            ret.0[3] = u64::MAX;
+        }
+        ret
     }
 
     fn zero_widen(self) -> Self::D {
-        self.unsigned().zero_widen().as_signed()
+        self.unsigned().zero_widen().signed()
     }
 
     fn zero_widen_mul(self, rhs: Self) -> Self::D {
-        self.unsigned().zero_widen_mul(rhs.unsigned()).as_signed()
+        self.unsigned().zero_widen_mul(rhs.unsigned()).signed()
     }
 
     fn widen_mul(self, rhs: Self) -> Self::D {
-        let sign0 = self & (0b1 << 127);
-        let sign1 = rhs & (0b1 << 127);
-        let signed_res = sign0 ^ sign1;
         let mut res = self.zero_widen_mul(rhs);
+        if self.is_negative() ^ rhs.is_negative() {
+            for word in res.0.iter_mut().rev() {
+                let zeroes = word.leading_zeros();
+                let leading = u64::MAX << (64 - zeroes);
+                *word |= leading;
+                if zeroes != 64 { 
+                    break
+                }
+            }
+        }
 
-        // if signed_res > 0 {
-        //     for word in res.0.iter_mut().rev() {
-        //         for shift in (0..=63).rev() {
-        //             if
-        //             todo!()
-        //         }
-        //     }
-        // }
-        todo!()
+        res
     }
 }
 
