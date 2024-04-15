@@ -262,7 +262,7 @@ impl HInt for u128 {
             + (sum2 & u128::from(WORD_FULL_MASK))
             + ((sum3 << 32) & u128::from(WORD_HI_MASK));
 
-        let lo = r0 + (r1 << 64);
+        let lo = r0.wrapping_add(r1 << 64);
         let hi = (r1 >> 64)
             + (sum1 >> 96)
             + (sum2 >> 64)
