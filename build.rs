@@ -463,7 +463,6 @@ mod c {
 
         if (target_arch == "aarch64" || target_arch == "arm64ec") && consider_float_intrinsics {
             sources.extend(&[
-                ("__comparetf2", "comparetf2.c"),
                 ("__extenddftf2", "extenddftf2.c"),
                 ("__extendsftf2", "extendsftf2.c"),
                 ("__fixtfdi", "fixtfdi.c"),

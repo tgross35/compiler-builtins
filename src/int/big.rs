@@ -11,7 +11,9 @@ const WORD_FULL_MASK: u64 = 0xffffffffffffffff;
 const U128_LO_MASK: u128 = u64::MAX as u128;
 const U128_HI_MASK: u128 = (u64::MAX as u128) << 64;
 
-// Stored little endian
+/// A 256-bit unsigned integer represented as 4 64-bit limbs.
+///
+/// Each limb is a native-endian number, but the array is little-limb-endian.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct u256(pub [u64; 4]);
@@ -32,7 +34,9 @@ impl i256 {
     }
 }
 
-// Stored little endian
+/// A 256-bit signed integer represented as 4 64-bit limbs.
+///
+/// Each limb is a native-endian number, but the array is little-limb-endian.
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct i256(pub [u64; 4]);

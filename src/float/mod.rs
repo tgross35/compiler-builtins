@@ -127,7 +127,20 @@ macro_rules! float_impl {
                 self.to_bits() as Self::SignedInt
             }
             fn eq_repr(self, rhs: Self) -> bool {
-                if self.is_nan() && rhs.is_nan() {
+                #[cfg(feature = "mangled-names")]
+                fn is_nan(x: $ty) -> bool {
+                    // When using mangled-names, the "real" compiler-builtins might not have the
+                    // necessary builtin (__unordtf2) to test whether `f128` is NaN.
+                    // FIXME: Remove once the nightly toolchain has the __unordtf2 builtin
+                    // x is NaN if all the bits of the exponent are set and the significand is non-0
+                    x.repr() & $ty::EXPONENT_MASK == $ty::EXPONENT_MASK
+                        && x.repr() & $ty::SIGNIFICAND_MASK != 0
+                }
+                #[cfg(not(feature = "mangled-names"))]
+                fn is_nan(x: $ty) -> bool {
+                    x.is_nan()
+                }
+                if is_nan(self) && is_nan(rhs) {
                     true
                 } else {
                     self.repr() == rhs.repr()
