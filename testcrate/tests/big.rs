@@ -40,7 +40,7 @@ fn widen_mul_u128() {
         }
     }
 
-    for (a, b, exp, res) in errors {
+    for (a, b, exp, res) in &errors {
         eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
     }
     assert!(errors.is_empty());
@@ -73,7 +73,7 @@ fn widen_mul_i128() {
         }
     }
 
-    for (a, b, exp, res) in errors {
+    for (a, b, exp, res) in &errors {
         eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
     }
     assert!(errors.is_empty());
