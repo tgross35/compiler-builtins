@@ -34,8 +34,8 @@ fn widen_mul_u128() {
 
     let mut errors = Vec::new();
     for (i, (a, b, exp)) in tests.iter().enumerate() {
-        let res = a.zero_widen_mul(b);
-        if res != exp {
+        let res = a.zero_widen_mul(*b);
+        if res != *exp {
             errors.push((i, a, b, exp, res));
         }
     }
@@ -67,8 +67,8 @@ fn widen_mul_i128() {
 
     let mut errors = Vec::new();
     for (i, (a, b, exp)) in tests.iter().enumerate() {
-        let res = a.zero_widen_mul(b);
-        if res != exp {
+        let res = a.zero_widen_mul(*b);
+        if res != *exp {
             errors.push((i, a, b, exp, res));
         }
     }
