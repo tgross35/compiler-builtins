@@ -24,7 +24,7 @@ fn widen_i128() {
 #[test]
 fn widen_mul_u128() {
     let tests = [
-        (u128::MAX / 2, 2_u128, u256([u64::MAX, u64::MAX, 0, 0])),
+        (u128::MAX / 2, 2_u128, u256([u64::MAX - 1, u64::MAX, 0, 0])),
         (u128::MAX, 2_u128, u256([u64::MAX - 1, u64::MAX, 1, 0])),
         (u128::MAX, u128::MAX, u256([1, 0, u64::MAX - 1, u64::MAX])),
         (u128::MIN, u128::MIN, u256::ZERO),
@@ -33,15 +33,15 @@ fn widen_mul_u128() {
     ];
 
     let mut errors = Vec::new();
-    for (a, b, exp) in tests {
+    for (i, (a, b, exp)) in tests.iter().enumerate() {
         let res = a.zero_widen_mul(b);
         if res != exp {
-            errors.push((a, b, exp, res));
+            errors.push((i, a, b, exp, res));
         }
     }
 
-    for (a, b, exp, res) in &errors {
-        eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
+    for (i, a, b, exp, res) in &errors {
+        eprintln!("FAILURE ({i}): {a:#034x} * {b:#034x} = {exp:x} got {res:x}");
     }
     assert!(errors.is_empty());
 }
@@ -66,15 +66,15 @@ fn widen_mul_i128() {
     ];
 
     let mut errors = Vec::new();
-    for (a, b, exp) in tests {
+    for (i, (a, b, exp)) in tests.iter().enumerate() {
         let res = a.zero_widen_mul(b);
         if res != exp {
-            errors.push((a, b, exp, res));
+            errors.push((i, a, b, exp, res));
         }
     }
 
-    for (a, b, exp, res) in &errors {
-        eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
+    for (i, a, b, exp, res) in &errors {
+        eprintln!("FAILURE ({i}): {a:#034x} * {b:#034x} = {exp:x} got {res:x}");
     }
     assert!(errors.is_empty());
 }
