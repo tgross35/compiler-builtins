@@ -1,4 +1,4 @@
-use compiler_builtins::int::{i256, u256, HInt, MinInt};
+use compiler_builtins::int::{i256, u256, HInt, Int, MinInt};
 
 const LOHI_SPLIT: u128 = 0xaaaaaaaaaaaaaaaaffffffffffffffff;
 
@@ -34,7 +34,9 @@ fn widen_mul_u128() {
 
     let mut errors = Vec::new();
     for (i, (a, b, exp)) in tests.iter().enumerate() {
-        let res = a.zero_widen_mul(*b);
+        let res = a.widen_mul(*b);
+        let res_z = a.zero_widen_mul(*b);
+        assert_eq!(res, res_z);
         if res != *exp {
             errors.push((i, a, b, exp, res));
         }
@@ -52,13 +54,17 @@ fn widen_mul_i128() {
         (
             i128::MAX / 2,
             2_i128,
-            i256([u64::MAX, u64::MAX, u64::MAX, u64::MAX]),
+            i256([u64::MAX - 1, u64::MAX >> 1, 0, 0]),
         ),
-        (i128::MAX, 2_i128, i256([u64::MAX - 1, u64::MAX, 1, 0])),
-        (i128::MIN, 2_i128, i256([u64::MAX - 1, u64::MAX, 1, 0])),
-        (i128::MAX, i128::MAX, i256([1, 0, u64::MAX - 1, u64::MAX])),
-        (i128::MAX, i128::MAX, i256([1, 0, u64::MAX - 1, u64::MAX])),
-        (i128::MIN, i128::MIN, i256::ZERO),
+        (i128::MAX, 2_i128, i256([u64::MAX - 1, u64::MAX, 0, 0])),
+        (i128::MIN, 2_i128, i256([0, 0, u64::MAX, u64::MAX])),
+        (
+            i128::MAX,
+            i128::MAX,
+            i256([1, 0, u64::MAX - 1, u64::MAX >> 2]),
+        ),
+        (i128::MAX, i128::MIN, i256([0, 0, 0, 0b11 << 62])),
+        (i128::MIN, i128::MIN, i256([0, 0, 0, 0])),
         (1234, 0, i256::ZERO),
         (0, 1234, i256::ZERO),
         (-1234, 0, i256::ZERO),
@@ -67,7 +73,7 @@ fn widen_mul_i128() {
 
     let mut errors = Vec::new();
     for (i, (a, b, exp)) in tests.iter().enumerate() {
-        let res = a.zero_widen_mul(*b);
+        let res = a.widen_mul(*b);
         if res != *exp {
             errors.push((i, a, b, exp, res));
         }
