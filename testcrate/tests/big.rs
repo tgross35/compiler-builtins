@@ -1,4 +1,4 @@
-use compiler_builtins::int::{i256, u256, HInt};
+use compiler_builtins::int::{i256, u256, HInt, MinInt};
 
 const LOHI_SPLIT: u128 = 0xaaaaaaaaaaaaaaaaffffffffffffffff;
 
@@ -21,29 +21,60 @@ fn widen_i128() {
     assert_eq!((-1i128).zero_widen().unsigned(), (u128::MAX).widen());
 }
 
-const WORD_LO_MASK: u64 = 0x00000000ffffffff;
-const WORD_HI_MASK: u64 = 0xffffffff00000000;
-const WORD_FULL_MASK: u64 = 0xffffffffffffffff;
-macro_rules! word {
-    (1, $val:expr) => {
-        (($val >> (32 * 3)) & u128::from(WORD_LO_MASK)) as u64
-    };
-    (2, $val:expr) => {
-        (($val >> (32 * 2)) & u128::from(WORD_LO_MASK)) as u64
-    };
-    (3, $val:expr) => {
-        (($val >> (32 * 1)) & u128::from(WORD_LO_MASK)) as u64
-    };
-    (4, $val:expr) => {
-        (($val >> (32 * 0)) & u128::from(WORD_LO_MASK)) as u64
-    };
+#[test]
+fn widen_mul_u128() {
+    let tests = [
+        (u128::MAX / 2, 2_u128, u256([u64::MAX, u64::MAX, 0, 0])),
+        (u128::MAX, 2_u128, u256([u64::MAX - 1, u64::MAX, 1, 0])),
+        (u128::MAX, u128::MAX, u256([1, 0, u64::MAX - 1, u64::MAX])),
+        (u128::MIN, u128::MIN, u256::ZERO),
+        (1234, 0, u256::ZERO),
+        (0, 1234, u256::ZERO),
+    ];
+
+    let mut errors = Vec::new();
+    for (a, b, exp) in tests {
+        let res = a.zero_widen_mul(b);
+        if res != exp {
+            errors.push((a, b, exp, res));
+        }
+    }
+
+    for (a, b, exp, res) in errors {
+        eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
+    }
+    assert!(errors.is_empty());
 }
 
 #[test]
-fn widen_mul_u128() {
-    let a = u128::MAX;
-    let b = 2_u128;
-    let res = a.zero_widen_mul(b);
+fn widen_mul_i128() {
+    let tests = [
+        (
+            i128::MAX / 2,
+            2_i128,
+            i256([u64::MAX, u64::MAX, u64::MAX, u64::MAX]),
+        ),
+        (i128::MAX, 2_i128, i256([u64::MAX - 1, u64::MAX, 1, 0])),
+        (i128::MIN, 2_i128, i256([u64::MAX - 1, u64::MAX, 1, 0])),
+        (i128::MAX, i128::MAX, i256([1, 0, u64::MAX - 1, u64::MAX])),
+        (i128::MAX, i128::MAX, i256([1, 0, u64::MAX - 1, u64::MAX])),
+        (i128::MIN, i128::MIN, i256::ZERO),
+        (1234, 0, i256::ZERO),
+        (0, 1234, i256::ZERO),
+        (-1234, 0, i256::ZERO),
+        (0, -1234, i256::ZERO),
+    ];
 
-    assert_eq!(res, u256([u64::MAX - 1, u64::MAX, 1, 0]));
+    let mut errors = Vec::new();
+    for (a, b, exp) in tests {
+        let res = a.zero_widen_mul(b);
+        if res != exp {
+            errors.push((a, b, exp, res));
+        }
+    }
+
+    for (a, b, exp, res) in errors {
+        eprintln!("FAILURE: {a:#036x} * {b:#036x} = {exp:#036x} got {res:#036x}");
+    }
+    assert!(errors.is_empty());
 }
