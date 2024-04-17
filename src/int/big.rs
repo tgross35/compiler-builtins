@@ -15,7 +15,7 @@ const U128_HI_MASK: u128 = (u64::MAX as u128) << 64;
 ///
 /// Each limb is a native-endian number, but the array is little-limb-endian.
 #[allow(non_camel_case_types)]
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct u256(pub [u64; 4]);
 
 impl u256 {
@@ -27,19 +27,19 @@ impl u256 {
     }
 }
 
+/// A 256-bit signed integer represented as 4 64-bit limbs.
+///
+/// Each limb is a native-endian number, but the array is little-limb-endian.
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct i256(pub [u64; 4]);
+
 impl i256 {
     /// Reinterpret as an unsigned integer
     pub fn unsigned(self) -> u256 {
         u256(self.0)
     }
 }
-
-/// A 256-bit signed integer represented as 4 64-bit limbs.
-///
-/// Each limb is a native-endian number, but the array is little-limb-endian.
-#[allow(non_camel_case_types)]
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
-pub struct i256(pub [u64; 4]);
 
 impl MinInt for u256 {
     type OtherSign = i256;
@@ -109,21 +109,6 @@ impl MinInt for i256 {
 
 macro_rules! impl_common {
     ($ty:ty) => {
-        impl fmt::LowerHex for $ty {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(
-                    f,
-                    "0x{:016x}{:016x}{:016x}{:016x}",
-                    self.0[3], self.0[2], self.0[1], self.0[0]
-                )
-            }
-        }
-
-        impl fmt::Debug for $ty {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                <Self as fmt::LowerHex>::fmt(self, f)
-            }
-        }
         //         impl ops::Add for $ty {
         //             type Output = Self;
 
