@@ -309,19 +309,21 @@ impl HInt for i128 {
     }
 
     fn widen_mul(self, rhs: Self) -> Self::D {
-        let mut res = self.zero_widen_mul(rhs);
-        if self.is_negative() ^ rhs.is_negative() {
-            for word in res.0.iter_mut().rev() {
-                let zeroes = word.leading_zeros();
-                let leading = u64::MAX << (64 - zeroes);
-                *word |= leading;
-                if zeroes != 64 {
-                    break;
-                }
-            }
-        }
+        unimplemented!()
+        // let mut res = self.zero_widen_mul(rhs);
+        // if self.is_negative() ^ rhs.is_negative() {
+        //     // Sign extend as needed
+        //     // for word in res.0.iter_mut().rev() {
+        //     //     let zeroes = word.leading_zeros();
+        //     //     let leading = u64::MAX << (64 - zeroes);
+        //     //     *word |= leading;
+        //     //     if zeroes != 64 {
+        //     //         break;
+        //     //     }
+        //     // }
+        // }
 
-        res
+        // res
     }
 }
 
