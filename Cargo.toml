@@ -39,7 +39,7 @@ cc = { optional = true, version = "1.0" }
 panic-handler = { path = 'crates/panic-handler' }
 
 [features]
-default = ["compiler-builtins"]
+default = ["compiler-builtins", "complete-system-rt"]
 
 # Enable compilation of C code in compiler-rt, filling in some more optimized
 # implementations and also filling in unimplemented intrinsics
@@ -76,6 +76,12 @@ public-test-deps = []
 # implementations and each will be used unless a stronger symbol replaces
 # it during linking.
 weak-intrinsics = []
+
+# On some systems, there are no symbols available in their vendored compiler-rt
+# that we would want to use for testing, e.g. MacOS does not provide `f128`
+# intrinsics. Enabling this feature builds missing symbols from C so we have
+# something to test against.
+complete-system-rt = ["cc"]
 
 [[example]]
 name = "intrinsics"
