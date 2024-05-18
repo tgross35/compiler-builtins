@@ -11,7 +11,16 @@ macro_rules! cmp {
         $f:ty, $x:ident, $y:ident, $apfloat_ty:ident, $sys_available:meta,
         $($unordered_val:expr, $fn:ident);*;
     ) => {
+        use crate::ApfloatFallback;
+
         $(
+
+        semantics!(Semantics, $sys_available);
+
+            let x = $x.un_op_noconvert::<_, _, Semantics>(
+                |x| x.is_nan()
+            );
+
             let cmp0 = if apfloat_fallback!(
                     $f, $apfloat_ty, $sys_available,
                     |x: FloatTy| x.is_nan() => no_convert,

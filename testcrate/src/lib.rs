@@ -13,12 +13,16 @@
 //! Some floating point tests are disabled for specific architectures, because they do not have
 //! correct rounding.
 #![no_std]
+#![feature(f128)]
+#![feature(f16)]
 
 use compiler_builtins::float::Float;
 use compiler_builtins::int::{Int, MinInt};
 
 use rand_xoshiro::rand_core::{RngCore, SeedableRng};
 use rand_xoshiro::Xoshiro128StarStar;
+use rustc_apfloat::ieee::{Double, Half, Quad, Single};
+use rustc_apfloat::Float as _;
 
 /// Sets the number of fuzz iterations run for most tests. In practice, the vast majority of bugs
 /// are caught by the edge case testers. Most of the remaining bugs triggered by more complex
@@ -262,6 +266,105 @@ pub fn fuzz_float_2<F: Float, E: Fn(F, F)>(n: u32, f: E) {
         fuzz_float_step(&mut rng, &mut y);
         f(x, y)
     }
+}
+
+pub struct UseBuiltin;
+pub struct UseApFallback;
+
+trait Associate<F>
+where
+    F: ApfloatFallback,
+    u128: From<F::Int>,
+    F::Int: TryFrom<u128, Error: core::fmt::Debug>,
+{
+    type Associated;
+    fn conv_to(f: F) -> Self::Associated;
+    fn conv_from(f: Self::Associated) -> F;
+}
+
+impl<F> Associate<F> for UseBuiltin
+where
+    F: ApfloatFallback,
+    u128: From<F::Int>,
+    F::Int: TryFrom<u128, Error: core::fmt::Debug>,
+{
+    type Associated = F;
+
+    fn conv_to(f: F) -> Self::Associated {
+        f
+    }
+
+    fn conv_from(f: Self::Associated) -> F {
+        f
+    }
+}
+
+impl<F> Associate<F> for UseApFallback
+where
+    F: ApfloatFallback,
+    u128: From<F::Int>,
+    F::Int: TryFrom<u128, Error: core::fmt::Debug>,
+{
+    type Associated = F::ApFloat;
+
+    fn conv_to(f: F) -> Self::Associated {
+        F::to_ap(f)
+    }
+
+    fn conv_from(f: Self::Associated) -> F {
+        F::from_ap(f)
+    }
+}
+
+pub trait ApfloatFallback: Float
+where
+    u128: From<Self::Int>,
+    Self::Int: TryFrom<u128, Error: core::fmt::Debug>,
+{
+    type ApFloat: rustc_apfloat::Float;
+
+    fn to_ap(self) -> Self::ApFloat {
+        Self::ApFloat::from_bits(self.repr().into())
+    }
+
+    fn from_ap(f: Self::ApFloat) -> Self {
+        Self::from_repr(f.to_bits().try_into().unwrap())
+    }
+
+    /// Unary operation
+    fn un_op_noconvert<T, Op, S: Associate<Self>>(self, op: Op) -> T
+    where
+        Op: FnOnce(S::Associated) -> T,
+    {
+        op(S::conv_to(self))
+    }
+    // fn un_op<T, Op, S: Associate<Self>>(self, op: Op) -> T
+    // where
+    //     Op: FnOnce(S::Associated) -> T,
+    // {
+    //     S::conv_from(op(S::conv_to(self)))
+    // }
+}
+
+impl ApfloatFallback for f16 {
+    type ApFloat = Half;
+}
+impl ApfloatFallback for f32 {
+    type ApFloat = Single;
+}
+impl ApfloatFallback for f64 {
+    type ApFloat = Double;
+}
+impl ApfloatFallback for f128 {
+    type ApFloat = Quad;
+}
+
+#[macro_export]
+macro_rules! semantics {
+    ( $sys_available:meta) => {
+        #[cfg($sys_avilable)] crate::UseBuiltin, #[cfg(not($sys_avilable))]
+        type $s = crate::UseApFallback;
+    };
 }
 
 /// Perform an operation using builtin types if available, falling back to apfloat if not.
