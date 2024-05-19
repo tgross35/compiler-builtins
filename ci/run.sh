@@ -24,6 +24,7 @@ else
     run="cargo test --manifest-path testcrate/Cargo.toml --no-fail-fast --target $target"
     $run
     $run --release
+    $run --benches
     $run --features c
     $run --features c --release
     $run --features no-asm
