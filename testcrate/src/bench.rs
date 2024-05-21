@@ -44,8 +44,9 @@ macro_rules! float_bench {
         // Assembly implementations, if any.
         asm: [
             $(
-                #[$asm_meta:meta]
-                asm!($($asm_tt:tt)*)
+                #[$asm_meta:meta] {
+                    $($asm_tt:tt)*
+                }
             );*
             $(;)?
         ]
@@ -53,31 +54,9 @@ macro_rules! float_bench {
     ) => {paste::paste! {
         #[allow(dead_code)]
         extern "C" {
-            /// Assembly function name
-            fn [<$name _asm>]($($arg: $arg_ty),*) -> $ret_ty;
-
             /// Binding for the system function
             fn $sys_fn($($arg: $arg_ty),*) -> $ret_ty;
         }
-
-        $(
-            #[$asm_meta]
-            #[cfg(not(target_vendor = "apple"))]
-            core::arch::global_asm!(
-                concat!(".global ", stringify!([<$name _asm>])),
-                concat!(stringify!([<$name _asm>]), ":"),
-                $($asm_tt)*
-            );
-
-            #[$asm_meta]
-            #[cfg(target_vendor = "apple")]
-            core::arch::global_asm!(
-                // mac targets have a leading `_` in assembly symbol names
-                concat!(".global _", stringify!([<$name _asm>])),
-                concat!("_", stringify!([<$name _asm>]), ":"),
-                $($asm_tt)*
-            );
-        )*
 
         fn $name(c: &mut Criterion) {
             use core::hint::black_box;
@@ -96,8 +75,12 @@ macro_rules! float_bench {
             }
 
             #[inline(never)] // equalize with external calls
-            fn asm_fn($($arg: $arg_ty),*) -> $ret_ty {
-                unsafe { [<$name _asm>]( $($arg),* ) }
+            fn asm_fn($(mut $arg: $arg_ty),*) -> $ret_ty {
+                use core::arch::asm;
+                $(
+                    #[$asm_meta]
+                    unsafe { $($asm_tt)* }
+                )*
             }
 
             let testvec = <($($arg_ty),*)>::make_testvec($crate::bench::CHECK_ITER_ITEMS);
