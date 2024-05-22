@@ -1,3 +1,4 @@
+#![allow(unused_variables)] // "unused" f16 registers
 #![feature(f128)]
 #![feature(f16)]
 
@@ -7,22 +8,29 @@ use testcrate::float_bench;
 
 float_bench! {
     name: extend_f16_f32,
-    sig: (f: f16) -> f32,
+    sig: (a: f16) -> f32,
     crate_fn: extend::__extendhfsf2,
     sys_fn: __extendhfsf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcvt    s0, h0",
-            "ret",
-        );
+        #[cfg(target_arch = "aarch64")] {
+            // FIXME(f16_f128): use `f16` assembly once support is added (rust-lang/rust/#116909)
+            let ret: f32;
+            asm!(
+                "fcvt    {ret:s}, h0",
+                // a = in(vreg) a,
+                ret = lateout(vreg) ret,
+                options(nomem, nostack),
+            );
+
+            ret
+        };
     ],
 }
 
 float_bench! {
     name: extend_f16_f128,
-    sig: (f: f16) -> f128,
+    sig: (a: f16) -> f128,
     crate_fn: extend::__extendhftf2,
     sys_fn: __extendhftf2,
     sys_available: not(feature = "no-sys-f128"),
@@ -31,22 +39,28 @@ float_bench! {
 
 float_bench! {
     name: extend_f32_f64,
-    sig: (f: f32) -> f64,
+    sig: (a: f32) -> f64,
     crate_fn: extend::__extendsfdf2,
     sys_fn: __extendsfdf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcvt    d0, s0",
-            "ret",
-        );
+        #[cfg(target_arch = "aarch64")] {
+            let ret: f64;
+            asm!(
+                "fcvt    {ret:d}, {a:s}",
+                a = in(vreg) a,
+                ret = lateout(vreg) ret,
+                options(nomem, nostack),
+            );
+
+            ret
+        };
     ],
 }
 
 float_bench! {
     name: extend_f32_f128,
-    sig: (f: f32) -> f128,
+    sig: (a: f32) -> f128,
     crate_fn: extend::__extendsftf2,
     sys_fn: __extendsftf2,
     sys_available: not(feature = "no-sys-f128"),
@@ -55,7 +69,7 @@ float_bench! {
 
 float_bench! {
     name: extend_f64_f128,
-    sig: (f: f64) -> f128,
+    sig: (a: f64) -> f128,
     crate_fn: extend::__extenddftf2,
     sys_fn: __extenddftf2,
     sys_available: not(feature = "no-sys-f128"),

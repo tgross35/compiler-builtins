@@ -24,7 +24,7 @@ float_bench! {
 
         #[cfg(target_arch = "aarch64")] {
             asm!(
-                "fadd  {a:s}, {a:s}, {b:s}",
+                "fadd {a:s}, {a:s}, {b:s}",
                 a = inout(vreg) a,
                 b = in(vreg) b,
                 options(nomem, nostack)
@@ -55,7 +55,7 @@ float_bench! {
 
         #[cfg(target_arch = "aarch64")] {
             asm!(
-                "fadd  {a:d}, {a:d}, {b:d}",
+                "fadd {a:d}, {a:d}, {b:d}",
                 a = inout(vreg) a,
                 b = in(vreg) b,
                 options(nomem, nostack)
@@ -66,14 +66,14 @@ float_bench! {
     ],
 }
 
-// float_bench! {
-//     name: add_f128,
-//     sig: (a: f128, b: f128) -> f128,
-//     crate_fn: add::__addtf3,
-//     sys_fn: __addtf3,
-//     sys_available: not(feature = "no-sys-f128"),
-//     asm: []
-// }
+float_bench! {
+    name: add_f128,
+    sig: (a: f128, b: f128) -> f128,
+    crate_fn: add::__addtf3,
+    sys_fn: __addtf3,
+    sys_available: not(feature = "no-sys-f128"),
+    asm: []
+}
 
-criterion_group!(float_add, add_f32,);
+criterion_group!(float_add, add_f32, add_f64, add_f128);
 criterion_main!(float_add);

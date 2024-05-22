@@ -11,17 +11,27 @@ float_bench! {
     sys_fn: __subsf3,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "subss xmm0, xmm1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            asm!(
+                "subss {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-           "fsub    s0, s0, s1",
-           "ret",
-        );
+            a
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            asm!(
+                "fsub {a:s}, {a:s}, {b:s}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
+            );
+
+            a
+        };
     ],
 }
 
@@ -32,17 +42,27 @@ float_bench! {
     sys_fn: __subdf3,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "subsd xmm0, xmm1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            asm!(
+                "subsd {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-           "fsub    d0, d0, d1",
-           "ret",
-        );
+            a
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            asm!(
+                "fsub {a:d}, {a:d}, {b:d}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
+            );
+
+            a
+        };
     ],
 }
 

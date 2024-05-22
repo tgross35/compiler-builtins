@@ -44,7 +44,7 @@ macro_rules! float_bench {
         // Assembly implementations, if any.
         asm: [
             $(
-                #[$asm_meta:meta] {
+                #[cfg($asm_meta:meta)] {
                     $($asm_tt:tt)*
                 }
             );*
@@ -75,10 +75,11 @@ macro_rules! float_bench {
             }
 
             #[inline(never)] // equalize with external calls
+            #[cfg(any( $($asm_meta),* ))]
             fn asm_fn($(mut $arg: $arg_ty),*) -> $ret_ty {
                 use core::arch::asm;
                 $(
-                    #[$asm_meta]
+                    #[cfg($asm_meta)]
                     unsafe { $($asm_tt)* }
                 )*
             }
@@ -91,12 +92,13 @@ macro_rules! float_bench {
 
             #[cfg($sys_available)]
             for ($($arg),*) in testvec.iter().copied() {
+                let crate_res = crate_fn($($arg),*);
+                let sys_res = sys_fn($($arg),*);
+
                 if $crate::bench::SKIP_SYS_CHECKS.contains(&title) {
                     continue;
                 }
 
-                let crate_res = crate_fn($($arg),*);
-                let sys_res = sys_fn($($arg),*);
                 assert!(
                     $ret_ty::check_eq(crate_res, sys_res),
                     "{title}{:?}: crate: {crate_res:?}, sys: {sys_res:?}",
@@ -104,9 +106,12 @@ macro_rules! float_bench {
                 );
             }
 
-            // use a binding to get around nested macro repetition
-            let do_asm_check = || {
+            #[cfg(any( $($asm_meta),* ))]
+            {
                 for ($($arg),*) in testvec.iter().copied() {
+                    let crate_res = crate_fn($($arg),*);
+                    let asm_res = asm_fn($($arg),*);
+
                     // FIXME: these fail for float multiplication
                     // <https://github.com/rust-lang/compiler-builtins/issues/616>
                     if title.contains("mul")
@@ -116,20 +121,13 @@ macro_rules! float_bench {
                         continue;
                     }
 
-                    let crate_res = crate_fn($($arg),*);
-                    let asm_res = asm_fn($($arg),*);
-
                     assert!(
                         $ret_ty::check_eq(crate_res, asm_res),
                         "{title}{:?}: crate: {crate_res:?}, asm: {asm_res:?}",
                         ($($arg),* ,)
                     );
                 }
-            };
-            $(
-                #[$asm_meta]
-                do_asm_check();
-            )*
+            }
 
             c.bench_function(&format!("{title} compiler-builtins"), |b| {
                 b.iter(|| {
@@ -148,22 +146,16 @@ macro_rules! float_bench {
                 })
             });
 
-            // use a binding to get around nested macro repetition
-            let mut do_asm_bench = || {
-                c.bench_function(&format!(
-                    "{title} assembly {} {}", std::env::consts::ARCH, std::env::consts::FAMILY
-                ), |b| {
-                    b.iter(|| {
-                        for ($($arg),*) in benchvec.iter().copied() {
-                            black_box(asm_fn( $(black_box($arg)),* ));
-                        }
-                    })
-                });
-            };
-            $(
-                #[$asm_meta]
-                do_asm_bench();
-            )*
+            #[cfg(any( $($asm_meta),* ))]
+            c.bench_function(&format!(
+                "{title} assembly ({} {})", std::env::consts::ARCH, std::env::consts::FAMILY
+            ), |b| {
+                b.iter(|| {
+                    for ($($arg),*) in benchvec.iter().copied() {
+                        black_box(asm_fn( $(black_box($arg)),* ));
+                    }
+                })
+            });
         }
     }};
 

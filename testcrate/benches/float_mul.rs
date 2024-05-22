@@ -11,17 +11,27 @@ float_bench! {
     sys_fn: __mulsf3,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "mulss xmm0, xmm1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            asm!(
+                "mulss {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-           "fmul    s0, s0, s1",
-           "ret",
-        );
+            a
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            asm!(
+                "fmul {a:s}, {a:s}, {b:s}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
+            );
+
+            a
+        };
     ],
 }
 
@@ -32,17 +42,27 @@ float_bench! {
     sys_fn: __muldf3,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "mulsd xmm0, xmm1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            asm!(
+                "mulsd {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-           "fmul    d0, d0, d1",
-           "ret",
-        );
+            a
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            asm!(
+                "fmul {a:d}, {a:d}, {b:d}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
+            );
+
+            a
+        };
     ],
 }
 

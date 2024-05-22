@@ -12,20 +12,34 @@ float_bench! {
     sys_fn: __gtsf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "xor     eax, eax",
-            "ucomiss xmm0, xmm1",
-            "seta    al",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            let ret: i32;
+            asm!(
+                "xor     {ret}, {ret}",
+                "ucomiss {a}, {b}",
+                "seta    {ret:l}",
+                a = in(xmm_reg) a,
+                b = in(xmm_reg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcmp    s0, s1",
-            "cset    w0, gt",
-            "ret",
-        );
+            ret
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            let ret: i32;
+            asm!(
+                "fcmp    {a:s}, {b:s}",
+                "cset    {ret:w}, gt",
+                a = in(vreg) a,
+                b = in(vreg) b,
+                ret = out(reg) ret,
+                options(nomem,nostack),
+            );
+
+            ret
+        };
     ],
 }
 
@@ -36,20 +50,34 @@ float_bench! {
     sys_fn: __unordsf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "cmpneqss xmm0, xmm1",
-            "movd     eax, xmm0",
-            "and      eax, 1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            let ret: i32;
+            asm!(
+                "xor     {ret}, {ret}",
+                "ucomiss {a}, {b}",
+                "setp    {ret:l}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcmp    s0, s1",
-            "cset    w0, eq",
-            "ret",
-        );
+            ret
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            let ret: i32;
+            asm!(
+                "fcmp    {a:s}, {b:s}",
+                "cset    {ret:w}, vs",
+                a = in(vreg) a,
+                b = in(vreg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
+
+            ret
+        };
     ],
 }
 
@@ -60,20 +88,34 @@ float_bench! {
     sys_fn: __gtdf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "xor     eax, eax",
-            "ucomisd xmm0, xmm1",
-            "seta    al",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            let ret: i32;
+            asm!(
+                "xor     {ret}, {ret}",
+                "ucomisd {a}, {b}",
+                "seta    {ret:l}",
+                a = in(xmm_reg) a,
+                b = in(xmm_reg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcmp    d0, d1",
-            "cset    w0, gt",
-            "ret",
-        );
+            ret
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            let ret: i32;
+            asm!(
+                "fcmp    {a:d}, {b:d}",
+                "cset {ret:w}, gt",
+                a = in(vreg) a,
+                b = in(vreg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
+
+            ret
+        };
     ],
 }
 
@@ -84,20 +126,34 @@ float_bench! {
     sys_fn: __unorddf2,
     sys_available: all(),
     asm: [
-        #[cfg(target_arch = "x86_64")]
-        asm!(
-            "cmpeqsd xmm0, xmm1",
-            "movq    rax, xmm0",
-            "and     eax, 1",
-            "ret",
-        );
+        #[cfg(target_arch = "x86_64")] {
+            let ret: i32;
+            asm!(
+                "xor     {ret}, {ret}",
+                "ucomisd {a}, {b}",
+                "setp    {ret:l}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
 
-        #[cfg(target_arch = "aarch64")]
-        asm!(
-            "fcmp    d0, d1",
-            "cset    w0, eq",
-            "ret",
-        );
+            ret
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            let ret: i32;
+            asm!(
+                "fcmp    {a:d}, {b:d}",
+                "cset    {ret:w}, vs",
+                a = in(vreg) a,
+                b = in(vreg) b,
+                ret = out(reg) ret,
+                options(nomem, nostack)
+            );
+
+            ret
+        };
     ],
 }
 
