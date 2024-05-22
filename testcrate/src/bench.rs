@@ -24,6 +24,12 @@ pub const SKIP_SYS_CHECKS: &[&str] = &[
     "trunc_f64_f16",
 ];
 
+/// Still run benchmarks but don't check correctness between compiler-builtins and
+/// assembly functions
+// FIXME: these fail for float multiplication
+// <https://github.com/rust-lang/compiler-builtins/issues/616>
+pub const SKIP_ASM_CHECKS: &[&str] = &["mul_f32", "mul_f64"];
+
 /// Create a comparison of the system symbol, compiler_builtins, and optionally handwritten
 /// assembly.
 ///
@@ -41,6 +47,9 @@ macro_rules! float_bench {
         sys_fn: $sys_fn:ident,
         // Meta saying whether the system symbol is available
         sys_available: $sys_available:meta,
+        // An optional function to validate the results of two functions are equal, if not
+        // just `$ret_ty::check_eq`
+        $( output_eq: $output_eq:expr, )?
         // Assembly implementations, if any.
         asm: [
             $(
@@ -87,6 +96,7 @@ macro_rules! float_bench {
             let testvec = <($($arg_ty),*)>::make_testvec($crate::bench::CHECK_ITER_ITEMS);
             let benchvec= <($($arg_ty),*)>::make_testvec($crate::bench::BENCH_ITER_ITEMS);
             let title = stringify!($name);
+            let check_eq = float_bench!(@coalesce_expr $($output_eq)?, $ret_ty::check_eq);
 
             // Verify math lines up
 
@@ -100,7 +110,7 @@ macro_rules! float_bench {
                 }
 
                 assert!(
-                    $ret_ty::check_eq(crate_res, sys_res),
+                    check_eq(crate_res, sys_res),
                     "{title}{:?}: crate: {crate_res:?}, sys: {sys_res:?}",
                     ($($arg),* ,)
                 );
@@ -112,17 +122,12 @@ macro_rules! float_bench {
                     let crate_res = crate_fn($($arg),*);
                     let asm_res = asm_fn($($arg),*);
 
-                    // FIXME: these fail for float multiplication
-                    // <https://github.com/rust-lang/compiler-builtins/issues/616>
-                    if title.contains("mul")
-                        // cmp is skipped because builtins do spaceship but assembly does
-                        // a single operation.
-                        || title.contains("cmp") {
+                    if $crate::bench::SKIP_ASM_CHECKS.contains(&title) {
                         continue;
                     }
 
                     assert!(
-                        $ret_ty::check_eq(crate_res, asm_res),
+                        check_eq(crate_res, asm_res),
                         "{title}{:?}: crate: {crate_res:?}, asm: {asm_res:?}",
                         ($($arg),* ,)
                     );
@@ -159,8 +164,11 @@ macro_rules! float_bench {
         }
     }};
 
-    (@coalesce $a:ty, $b:ty) => { $a };
-    (@coalesce , $b:ty) => { $b };
+    (@coalesce_ty $specified:ty, $default:ty) => { $specified };
+    (@coalesce_ty , $default:ty) => { $default };
+
+    (@coalesce_expr $specified:expr, $default:expr) => { $specified };
+    (@coalesce_expr , $default:expr) => { $default };
 
     // Default to float comparison
     (@eq $f_ty:ty,) => {

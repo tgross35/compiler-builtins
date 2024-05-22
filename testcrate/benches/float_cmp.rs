@@ -5,12 +5,21 @@ use testcrate::float_bench;
 
 use compiler_builtins::float::cmp;
 
+/// `gt` symbols are allowed to return differing results, they just get compared
+/// to 0.
+fn gt_res_eq(a: i32, b: i32) -> bool {
+    let a_lt_0 = a <= 0;
+    let b_lt_0 = b <= 0;
+    (a_lt_0 && b_lt_0) || (!a_lt_0 && !b_lt_0)
+}
+
 float_bench! {
     name: cmp_f32_gt,
     sig: (a: f32, b: f32) -> i32,
     crate_fn: cmp::__gtsf2,
     sys_fn: __gtsf2,
     sys_available: all(),
+    output_eq: gt_res_eq,
     asm: [
         #[cfg(target_arch = "x86_64")] {
             let ret: i32;
@@ -87,6 +96,7 @@ float_bench! {
     crate_fn: cmp::__gtdf2,
     sys_fn: __gtdf2,
     sys_available: all(),
+    output_eq: gt_res_eq,
     asm: [
         #[cfg(target_arch = "x86_64")] {
             let ret: i32;
