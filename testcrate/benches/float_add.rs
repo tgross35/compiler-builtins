@@ -13,8 +13,10 @@ float_bench! {
     asm: [
         #[cfg(target_arch = "x86_64")] {
             asm!(
-                "addss xmm0, xmm1",
-                "ret",
+                "addss {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
             );
 
             a
@@ -22,8 +24,10 @@ float_bench! {
 
         #[cfg(target_arch = "aarch64")] {
             asm!(
-                "fadd    s0, s0, s1",
-                "ret",
+                "fadd  {a:s}, {a:s}, {b:s}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
             );
 
             a
@@ -31,26 +35,36 @@ float_bench! {
     ],
 }
 
-// float_bench! {
-//     name: add_f64,
-//     sig: (a: f64, b: f64) -> f64,
-//     crate_fn: add::__adddf3,
-//     sys_fn: __adddf3,
-//     sys_available: all(),
-//     asm: [
-//         #[cfg(target_arch = "x86_64")]
-//         asm!(
-//             "addsd xmm0, xmm1",
-//             "ret",
-//         );
+float_bench! {
+    name: add_f64,
+    sig: (a: f64, b: f64) -> f64,
+    crate_fn: add::__adddf3,
+    sys_fn: __adddf3,
+    sys_available: all(),
+    asm: [
+        #[cfg(target_arch = "x86_64")] {
+            asm!(
+                "addsd {a}, {b}",
+                a = inout(xmm_reg) a,
+                b = in(xmm_reg) b,
+                options(nomem, nostack)
+            );
 
-//         #[cfg(target_arch = "aarch64")]
-//         asm!(
-//             "fadd    d0, d0, d1",
-//             "ret",
-//         );
-//     ],
-// }
+            a
+        };
+
+        #[cfg(target_arch = "aarch64")] {
+            asm!(
+                "fadd  {a:d}, {a:d}, {b:d}",
+                a = inout(vreg) a,
+                b = in(vreg) b,
+                options(nomem, nostack)
+            );
+
+            a
+        };
+    ],
+}
 
 // float_bench! {
 //     name: add_f128,
