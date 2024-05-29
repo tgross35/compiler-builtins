@@ -121,6 +121,24 @@ intrinsics! {
     pub extern "C" fn __floatuntidf(i: u128) -> f64 {
         int_to_float(i)
     }
+
+    #[ppc_alias = __floatunsikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floatunsitf(i: u32) -> f128 {
+        int_to_float(i)
+    }
+
+    #[ppc_alias = __floatundikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floatunditf(i: u64) -> f128 {
+        int_to_float(i)
+    }
+
+    #[ppc_alias = __floatuntikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floatuntitf(i: u128) -> f128 {
+        int_to_float(i)
+    }
 }
 
 // Conversions from signed integers to floats.
@@ -152,6 +170,24 @@ intrinsics! {
 
     #[cfg_attr(target_os = "uefi", unadjusted_on_win64)]
     pub extern "C" fn __floattidf(i: i128) -> f64 {
+        int_to_float(i)
+    }
+
+    #[ppc_alias = __floatsikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floatsitf(i: i32) -> f128 {
+        int_to_float(i)
+    }
+
+    #[ppc_alias = __floatdikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floatditf(i: i64) -> f128 {
+        int_to_float(i)
+    }
+
+    #[ppc_alias = __floattikf]
+    #[cfg(not(feature = "no-f16-f128"))]
+    pub extern "C" fn __floattitf(i: i128) -> f128 {
         int_to_float(i)
     }
 }
