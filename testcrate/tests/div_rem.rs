@@ -188,3 +188,53 @@ mod float_div_arm {
         f64, __divdf3vfp, Double, all();
     }
 }
+
+#[test]
+fn problem_f128() {
+    use compiler_builtins::float::div::__divtf3;
+
+    let a = f128::from_bits(0x00000000000000000000000000000001);
+    let b = f128::from_bits(0x0001FFFFFFFFFFFFFFFFFFFFFFFFFFFF);
+    let res = __divtf3(a, b);
+    println!(
+        "{:#036x} / {:#036x} = {:#036x}",
+        a.to_bits(),
+        b.to_bits(),
+        res.to_bits()
+    );
+    panic!();
+}
+
+#[test]
+fn problem_f64() {
+    use compiler_builtins::float::div::__divdf3;
+
+    let a = f64::from_bits(0x0000000000000001);
+    let b = f64::from_bits(0x001FFFFFFFFFFFFF);
+    let res = __divdf3(a, b);
+    println!(
+        "{:#018x} / {:#018x} = {:#018x}",
+        a.to_bits(),
+        b.to_bits(),
+        res.to_bits()
+    );
+    // 0x3CA0000000000001
+    panic!();
+}
+
+#[test]
+fn problem_f32() {
+    use compiler_builtins::float::div::__divsf3;
+
+    let a = f32::from_bits(0x00000001);
+    let b = f32::from_bits(0x00FFFFFF);
+    let res = __divsf3(a, b);
+    println!(
+        "{:#010x} / {:#010x} = {:#010x}",
+        a.to_bits(),
+        b.to_bits(),
+        res.to_bits()
+    );
+    // 0x33800001
+    panic!();
+}

@@ -116,8 +116,16 @@ trait DbgPrint: Copy {
     }
 }
 
-impl DbgPrint for &core::ffi::CStr {
-    const SPEC: &'static CStr = c"%s";
+impl DbgPrint for &str {
+    const SPEC: &'static CStr = c"";
+
+    fn print(&self) {
+        self.bytes().for_each(|b| unsafe { printf(c"%c".as_ptr(), b as u32)})
+    }
+}
+
+impl DbgPrint for u16 {
+    const SPEC: &'static CStr = c"%#06x";
 }
 
 impl DbgPrint for u32 {
@@ -154,6 +162,13 @@ impl DbgPrint for i128 {
     }
 }
 
+macro_rules! dbg_prln {
+    ($($e:expr),*) => {
+        $($e.print();)*
+        "".println();
+    }
+}
+
 fn div<F>(a: F, b: F) -> F
 where
     F: FloatDivision,
@@ -174,6 +189,8 @@ where
     F::Int: CastFrom<u32>,
     F::Int: From<u32>,
     F::Int: DbgPrint,
+    F::SignedInt: DbgPrint,
+    HalfRep<F>: DbgPrint,
     // <F::Int as HInt>::D: core::ops::Shr<u32, Output = <F::Int as HInt>::D>,
     u16: CastInto<F::Int>,
     i32: CastInto<F::Int>,
@@ -205,9 +222,11 @@ where
     let a_rep = a.repr();
     let b_rep = b.repr();
 
-    c"\nstart ".print();
+    "\n\nstart ".print();
+    F::BITS.print();
+    " ".print();
     a_rep.print();
-    c" div ".print();
+    " div ".print();
     b_rep.println();
 
     // TODO: use u32/i32 to store exponents since they fit up to `f256`. This should make
@@ -215,6 +234,8 @@ where
     let a_exponent = (a_rep >> significand_bits) & max_exponent;
     let b_exponent = (b_rep >> significand_bits) & max_exponent;
     let quotient_sign = (a_rep ^ b_rep) & sign_bit;
+
+    dbg_prln!("a exp: ", a_exponent, ", b exp: ", b_exponent);
 
     let mut a_significand = a_rep & significand_mask;
     let mut b_significand = b_rep & significand_mask;
@@ -283,6 +304,8 @@ where
         }
     }
 
+    dbg_prln!("no early exit found");
+
     // Set the implicit significand bit.  If we fell through from the
     // denormal path it was already set by normalize( ), but setting it twice
     // won't hurt anything.
@@ -297,7 +320,7 @@ where
     );
     let b_uq1 = b_significand << (F::BITS - significand_bits - 1);
 
-    c"step1".println();
+    dbg_prln!("written exponent: ", written_exponent, ", scale: ", scale);
 
     // Align the significand of b as a UQ1.(n-1) fixed-point number in the range
     // [1.0, 2.0) and get a UQ0.n approximate reciprocal using a small minimax
@@ -345,7 +368,7 @@ where
 
         let c_hw = F::C_HW;
 
-        c"step2".println();
+        dbg_prln!("using half iterations. b_uq1_hw: ", b_uq1_hw);
 
         // b >= 1, thus an upper bound for 3/4 + 1/sqrt(2) - b/2 is about 0.9572,
         // so x0 fits to UQ0.HW without wrapping.
@@ -442,6 +465,7 @@ where
         // iteration. Using ad-hoc multiplication implementations to take advantage
         // of particular structure of operands.
         let blo: F::Int = b_uq1 & lo_mask;
+
         // x_UQ0 = x_UQ0_hw * 2^HW - 1
         // x_UQ0 * b_UQ1 = (x_UQ0_hw * 2^HW) * (b_UQ1_hw * 2^HW + blo) - b_UQ1
         //
@@ -472,8 +496,6 @@ where
         //                 + (2^-HW + 2^-W))
         // abs(E_{N-1}) <= (u_{N-1} + 3.01) * 2^-HW
 
-        c"step3".println();
-
         // Then like for the half-width iterations:
         // With 0 <= eps1, eps2 < 2^-W
         // E_N  = 4 * E_{N-1} * eps1 - (E_{N-1}^2 * b + 4 * eps2) + 4 * eps1 / b
@@ -485,10 +507,12 @@ where
         let c: F::Int = F::Int::from(0x7504F333u32) << (F::BITS - 32);
         let x_uq0: F::Int = c.wrapping_sub(b_uq1);
 
-        c"step4".println();
+        dbg_prln!("no half iterations");
         // E_0 <= 3/4 - 1/sqrt(2) + 2 * 2^-64
         x_uq0
     };
+
+    dbg_prln!("initial x_uq0: ", x_uq0);
 
     if F::USE_NATIVE_FULL_ITERATIONS {
         // for _ in 0..F::FULL_ITERATIONS {
@@ -496,7 +520,7 @@ where
         //     x_uq0 = (x_uq0.widen_mul(corr_uq1) >> (F::BITS - 1)).lo();
         // }
 
-        c"step5".println();
+        dbg_prln!("using full native iterations");
         for _ in 0..F::FULL_ITERATIONS {
             let corr_uq1: u32 = 0.wrapping_sub(
                 ((CastInto::<u32>::cast(x_uq0) as u64) * (CastInto::<u32>::cast(b_uq1) as u64))
@@ -506,18 +530,28 @@ where
                 as u32)
                 .cast();
         }
+
+        dbg_prln!("x_uq0 after full iterations: ", x_uq0);
     }
+    
 
     // Finally, account for possible overflow, as explained above.
     x_uq0 = x_uq0.wrapping_sub(2.cast());
 
+    dbg_prln!("x_uq0 before recip sub: ", x_uq0);
+
     // Suppose 1/b - P * 2^-W < x < 1/b + P * 2^-W
     x_uq0 -= F::RECIPROCAL_PRECISION.cast();
+
+    dbg_prln!("x_uq0 after recip sub: ", x_uq0, " a_sig: ", a_significand);
+    
     // Now 1/b - (2*P) * 2^-W < x < 1/b
     // FIXME Is x_UQ0 still >= 0.5?
 
     let mut quotient_uq1: F::Int = x_uq0.widen_mul(a_significand << 1).hi();
     // Now, a/b - 4*P * 2^-W < q < a/b for q=<quotient_UQ1:dummy> in UQ1.(SB+1+W).
+
+    dbg_prln!("quotient after mul: ", quotient_uq1);
 
     // quotient_UQ1 is in [0.5, 2.0) as UQ1.(SB+1),
     // adjust it to be in [1.0, 2.0) as UQ1.SB.
@@ -529,7 +563,8 @@ where
         written_exponent -= F::SignedInt::ONE;
         a_significand <<= 1;
 
-        c"step6".println();
+        "step6 exp: ".print();
+        written_exponent.println();
         residual_lo
     } else {
         // Highest bit is 1 (the UQ1.(SB+1) value is in [1, 2)), convert it
@@ -537,9 +572,11 @@ where
         quotient_uq1 >>= 1;
         let residual_lo = (a_significand << significand_bits)
             .wrapping_sub(quotient_uq1.wrapping_mul(b_significand));
-        c"step7".println();
+        "step7".println();
         residual_lo
     };
+
+    dbg_prln!("after step7 resid: ", residual_lo, ", quotient: ", quotient_uq1);
 
     //drop mutability
     let quotient = quotient_uq1;
@@ -570,7 +607,7 @@ where
 
     // If we have overflowed the exponent, return infinity
     if written_exponent >= F::SignedInt::cast_from(max_exponent) {
-        c"step8".println();
+        dbg_prln!("exp > max_exp");
         return F::from_repr(inf_rep | quotient_sign);
     }
 
@@ -581,12 +618,11 @@ where
         let mut ret = quotient & significand_mask;
         ret |= written_exponent.unsigned() << significand_bits;
         residual_lo <<= 1;
-        c"step9".println();
+        dbg_prln!("writen > zero. resid: ", residual_lo);
         ret
     } else {
-        c"step10".println();
         if (F::SignedInt::cast_from(significand_bits) + written_exponent) < F::SignedInt::ZERO {
-            c"step11".println();
+            dbg_prln!("written <= zero. returning ", quotient_sign);
             return F::from_repr(quotient_sign);
         }
 
@@ -594,26 +630,35 @@ where
         residual_lo = a_significand
             .wrapping_shl(significand_bits.wrapping_add(CastInto::<u32>::cast(written_exponent)))
             .wrapping_sub(ret.wrapping_mul(b_significand) << 1);
+
+        dbg_prln!("writen <= zero. resid: ", residual_lo);
         ret
     };
 
-    c"step12".println();
+    dbg_prln!("first abs res: ", abs_result, " resid: ", residual_lo, " b sig: ",b_significand);
+
     residual_lo += abs_result & one; // tie to even
                                      // conditionally turns the below LT comparison into LTE
     abs_result += u8::from(residual_lo > b_significand).into();
+    
+    dbg_prln!("abs res after resid > b_sig check: ", abs_result);
 
     if F::BITS == 128 || (F::BITS == 32 && F::HALF_ITERATIONS > 0) {
-        c"step13".println();
+        "step13".println();
         // Do not round Infinity to NaN
         abs_result +=
             u8::from(abs_result < inf_rep && residual_lo > (2 + 1).cast() * b_significand).into();
     }
 
+    dbg_prln!("abs res after resid check: ", abs_result);
+
     if F::BITS == 128 {
-        c"step14".println();
+        "step14".println();
         abs_result +=
             u8::from(abs_result < inf_rep && residual_lo > (4 + 1).cast() * b_significand).into();
     }
+    
+    dbg_prln!("final abs res: ", abs_result, "\n");
 
     F::from_repr(abs_result | quotient_sign)
 }
