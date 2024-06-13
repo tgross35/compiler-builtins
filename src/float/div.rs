@@ -120,7 +120,8 @@ impl DbgPrint for &str {
     const SPEC: &'static CStr = c"";
 
     fn print(&self) {
-        self.bytes().for_each(|b| unsafe { printf(c"%c".as_ptr(), b as u32)})
+        self.bytes()
+            .for_each(|b| unsafe { printf(c"%c".as_ptr(), b as u32) })
     }
 }
 
@@ -141,6 +142,10 @@ impl DbgPrint for u64 {
 }
 
 impl DbgPrint for i64 {
+    const SPEC: &'static CStr = c"%#018lx";
+}
+
+impl DbgPrint for usize {
     const SPEC: &'static CStr = c"%#018lx";
 }
 
@@ -306,7 +311,7 @@ where
 
     dbg_prln!("no early exit found");
 
-    // Set the implicit significand bit.  If we fell through from the
+    // Set the implicit significand bit. If we fell through from the
     // denormal path it was already set by normalize( ), but setting it twice
     // won't hurt anything.
     a_significand |= implicit_bit;
@@ -372,90 +377,91 @@ where
 
         // b >= 1, thus an upper bound for 3/4 + 1/sqrt(2) - b/2 is about 0.9572,
         // so x0 fits to UQ0.HW without wrapping.
-        let x_uq0_hw: HalfRep<F> = {
-            let mut x_uq0_hw: HalfRep<F> =
-                c_hw.wrapping_sub(b_uq1_hw /* exact b_hw/2 as UQ0.HW */);
-            // An e_0 error is comprised of errors due to
-            // * x0 being an inherently imprecise first approximation of 1/b_hw
-            // * C_hw being some (irrational) number **truncated** to W0 bits
-            // Please note that e_0 is calculated against the infinitely precise
-            // reciprocal of b_hw (that is, **truncated** version of b).
-            //
-            // e_0 <= 3/4 - 1/sqrt(2) + 2^-W0
+        let mut x_uq0_hw: HalfRep<F> =
+            c_hw.wrapping_sub(b_uq1_hw /* exact b_hw/2 as UQ0.HW */);
 
-            // By construction, 1 <= b < 2
-            // f(x)  = x * (2 - b*x) = 2*x - b*x^2
-            // f'(x) = 2 * (1 - b*x)
-            //
-            // On the [0, 1] interval, f(0)   = 0,
-            // then it increses until  f(1/b) = 1 / b, maximum on (0, 1),
-            // then it decreses to     f(1)   = 2 - b
-            //
-            // Let g(x) = x - f(x) = b*x^2 - x.
-            // On (0, 1/b), g(x) < 0 <=> f(x) > x
-            // On (1/b, 1], g(x) > 0 <=> f(x) < x
-            //
-            // For half-width iterations, b_hw is used instead of b.
-            for _ in 0..F::HALF_ITERATIONS {
-                // corr_UQ1_hw can be **larger** than 2 - b_hw*x by at most 1*Ulp
-                // of corr_UQ1_hw.
-                // "0.0 - (...)" is equivalent to "2.0 - (...)" in UQ1.(HW-1).
-                // On the other hand, corr_UQ1_hw should not overflow from 2.0 to 0.0 provided
-                // no overflow occurred earlier: ((rep_t)x_UQ0_hw * b_UQ1_hw >> HW) is
-                // expected to be strictly positive because b_UQ1_hw has its highest bit set
-                // and x_UQ0_hw should be rather large (it converges to 1/2 < 1/b_hw <= 1).
-                let corr_uq1_hw: HalfRep<F> = zero
-                    .wrapping_sub(
-                        (F::Int::from(x_uq0_hw).wrapping_mul(F::Int::from(b_uq1_hw))) >> hw,
-                    )
+        // An e_0 error is comprised of errors due to
+        // * x0 being an inherently imprecise first approximation of 1/b_hw
+        // * C_hw being some (irrational) number **truncated** to W0 bits
+        // Please note that e_0 is calculated against the infinitely precise
+        // reciprocal of b_hw (that is, **truncated** version of b).
+        //
+        // e_0 <= 3/4 - 1/sqrt(2) + 2^-W0
+
+        // By construction, 1 <= b < 2
+        // f(x)  = x * (2 - b*x) = 2*x - b*x^2
+        // f'(x) = 2 * (1 - b*x)
+        //
+        // On the [0, 1] interval, f(0)   = 0,
+        // then it increses until  f(1/b) = 1 / b, maximum on (0, 1),
+        // then it decreses to     f(1)   = 2 - b
+        //
+        // Let g(x) = x - f(x) = b*x^2 - x.
+        // On (0, 1/b), g(x) < 0 <=> f(x) > x
+        // On (1/b, 1], g(x) > 0 <=> f(x) < x
+        //
+        // For half-width iterations, b_hw is used instead of b.
+        for it in 0..F::HALF_ITERATIONS {
+            // corr_UQ1_hw can be **larger** than 2 - b_hw*x by at most 1*Ulp
+            // of corr_UQ1_hw.
+            // "0.0 - (...)" is equivalent to "2.0 - (...)" in UQ1.(HW-1).
+            // On the other hand, corr_UQ1_hw should not overflow from 2.0 to 0.0 provided
+            // no overflow occurred earlier: ((rep_t)x_UQ0_hw * b_UQ1_hw >> HW) is
+            // expected to be strictly positive because b_UQ1_hw has its highest bit set
+            // and x_UQ0_hw should be rather large (it converges to 1/2 < 1/b_hw <= 1).
+            let corr_uq1_hw: HalfRep<F> =
+                ((F::Int::from(x_uq0_hw).wrapping_mul(F::Int::from(b_uq1_hw))) >> hw)
+                    .wrapping_neg()
                     .cast();
 
-                // Now, we should multiply UQ0.HW and UQ1.(HW-1) numbers, naturally
-                // obtaining an UQ1.(HW-1) number and proving its highest bit could be
-                // considered to be 0 to be able to represent it in UQ0.HW.
-                // From the above analysis of f(x), if corr_UQ1_hw would be represented
-                // without any intermediate loss of precision (that is, in twice_rep_t)
-                // x_UQ0_hw could be at most [1.]000... if b_hw is exactly 1.0 and strictly
-                // less otherwise. On the other hand, to obtain [1.]000..., one have to pass
-                // 1/b_hw == 1.0 to f(x), so this cannot occur at all without overflow (due
-                // to 1.0 being not representable as UQ0.HW).
-                // The fact corr_UQ1_hw was virtually round up (due to result of
-                // multiplication being **first** truncated, then negated - to improve
-                // error estimations) can increase x_UQ0_hw by up to 2*Ulp of x_UQ0_hw.
-                x_uq0_hw = (F::Int::from(x_uq0_hw).wrapping_mul(F::Int::from(corr_uq1_hw))
-                    >> (hw - 1))
-                    .cast();
+            // Now, we should multiply UQ0.HW and UQ1.(HW-1) numbers, naturally
+            // obtaining an UQ1.(HW-1) number and proving its highest bit could be
+            // considered to be 0 to be able to represent it in UQ0.HW.
+            // From the above analysis of f(x), if corr_UQ1_hw would be represented
+            // without any intermediate loss of precision (that is, in twice_rep_t)
+            // x_UQ0_hw could be at most [1.]000... if b_hw is exactly 1.0 and strictly
+            // less otherwise. On the other hand, to obtain [1.]000..., one have to pass
+            // 1/b_hw == 1.0 to f(x), so this cannot occur at all without overflow (due
+            // to 1.0 being not representable as UQ0.HW).
+            // The fact corr_UQ1_hw was virtually round up (due to result of
+            // multiplication being **first** truncated, then negated - to improve
+            // error estimations) can increase x_UQ0_hw by up to 2*Ulp of x_UQ0_hw.
+            x_uq0_hw =
+                (F::Int::from(x_uq0_hw).wrapping_mul(F::Int::from(corr_uq1_hw)) >> (hw - 1)).cast();
 
-                // Now, either no overflow occurred or x_UQ0_hw is 0 or 1 in its half_rep_t
-                // representation. In the latter case, x_UQ0_hw will be either 0 or 1 after
-                // any number of iterations, so just subtract 2 from the reciprocal
-                // approximation after last iteration.
+            // Now, either no overflow occurred or x_UQ0_hw is 0 or 1 in its half_rep_t
+            // representation. In the latter case, x_UQ0_hw will be either 0 or 1 after
+            // any number of iterations, so just subtract 2 from the reciprocal
+            // approximation after last iteration.
 
-                // In infinite precision, with 0 <= eps1, eps2 <= U = 2^-HW:
-                // corr_UQ1_hw = 2 - (1/b_hw + e_n) * b_hw + 2*eps1
-                //             = 1 - e_n * b_hw + 2*eps1
-                // x_UQ0_hw = (1/b_hw + e_n) * (1 - e_n*b_hw + 2*eps1) - eps2
-                //          = 1/b_hw - e_n + 2*eps1/b_hw + e_n - e_n^2*b_hw + 2*e_n*eps1 - eps2
-                //          = 1/b_hw + 2*eps1/b_hw - e_n^2*b_hw + 2*e_n*eps1 - eps2
-                // e_{n+1} = -e_n^2*b_hw + 2*eps1/b_hw + 2*e_n*eps1 - eps2
-                //         = 2*e_n*eps1 - (e_n^2*b_hw + eps2) + 2*eps1/b_hw
-                //                        \------ >0 -------/   \-- >0 ---/
-                // abs(e_{n+1}) <= 2*abs(e_n)*U + max(2*e_n^2 + U, 2 * U)
-            }
-            // For initial half-width iterations, U = 2^-HW
-            // Let  abs(e_n)     <= u_n * U,
-            // then abs(e_{n+1}) <= 2 * u_n * U^2 + max(2 * u_n^2 * U^2 + U, 2 * U)
-            // u_{n+1} <= 2 * u_n * U + max(2 * u_n^2 * U + 1, 2)
+            // In infinite precision, with 0 <= eps1, eps2 <= U = 2^-HW:
+            // corr_UQ1_hw = 2 - (1/b_hw + e_n) * b_hw + 2*eps1
+            //             = 1 - e_n * b_hw + 2*eps1
+            // x_UQ0_hw = (1/b_hw + e_n) * (1 - e_n*b_hw + 2*eps1) - eps2
+            //          = 1/b_hw - e_n + 2*eps1/b_hw + e_n - e_n^2*b_hw + 2*e_n*eps1 - eps2
+            //          = 1/b_hw + 2*eps1/b_hw - e_n^2*b_hw + 2*e_n*eps1 - eps2
+            // e_{n+1} = -e_n^2*b_hw + 2*eps1/b_hw + 2*e_n*eps1 - eps2
+            //         = 2*e_n*eps1 - (e_n^2*b_hw + eps2) + 2*eps1/b_hw
+            //                        \------ >0 -------/   \-- >0 ---/
+            // abs(e_{n+1}) <= 2*abs(e_n)*U + max(2*e_n^2 + U, 2 * U)
+            
+            dbg_prln!("iteration ", it, " x_uq0_hw: ", x_uq0_hw);
+        }
+        // For initial half-width iterations, U = 2^-HW
+        // Let  abs(e_n)     <= u_n * U,
+        // then abs(e_{n+1}) <= 2 * u_n * U^2 + max(2 * u_n^2 * U^2 + U, 2 * U)
+        // u_{n+1} <= 2 * u_n * U + max(2 * u_n^2 * U + 1, 2)
 
-            // Account for possible overflow (see above). For an overflow to occur for the
-            // first time, for "ideal" corr_UQ1_hw (that is, without intermediate
-            // truncation), the result of x_UQ0_hw * corr_UQ1_hw should be either maximum
-            // value representable in UQ0.HW or less by 1. This means that 1/b_hw have to
-            // be not below that value (see g(x) above), so it is safe to decrement just
-            // once after the final iteration. On the other hand, an effective value of
-            // divisor changes after this point (from b_hw to b), so adjust here.
-            x_uq0_hw.wrapping_sub(HalfRep::<F>::ONE)
-        };
+        // Account for possible overflow (see above). For an overflow to occur for the
+        // first time, for "ideal" corr_UQ1_hw (that is, without intermediate
+        // truncation), the result of x_UQ0_hw * corr_UQ1_hw should be either maximum
+        // value representable in UQ0.HW or less by 1. This means that 1/b_hw have to
+        // be not below that value (see g(x) above), so it is safe to decrement just
+        // once after the final iteration. On the other hand, an effective value of
+        // divisor changes after this point (from b_hw to b), so adjust here.
+        x_uq0_hw = x_uq0_hw.wrapping_sub(HalfRep::<F>::ONE);
+
+        dbg_prln!("adjusted x_uq0_hw ", x_uq0_hw);
 
         // Error estimations for full-precision iterations are calculated just
         // as above, but with U := 2^-W and taking extra decrementing into account.
@@ -480,6 +486,9 @@ where
             .wrapping_neg(); // account for *possible* carry
         let lo_corr: F::Int = corr_uq1 & lo_mask;
         let hi_corr: F::Int = corr_uq1 >> hw;
+
+        dbg_prln!("lo_corr ", lo_corr, " hi_corr ", hi_corr);
+        
         // x_UQ0 * corr_UQ1 = (x_UQ0_hw * 2^HW) * (hi_corr * 2^HW + lo_corr) - corr_UQ1
         let mut x_uq0: F::Int = ((F::Int::from(x_uq0_hw) * hi_corr) << 1)
             .wrapping_add((F::Int::from(x_uq0_hw) * lo_corr) >> (hw - 1))
@@ -533,7 +542,6 @@ where
 
         dbg_prln!("x_uq0 after full iterations: ", x_uq0);
     }
-    
 
     // Finally, account for possible overflow, as explained above.
     x_uq0 = x_uq0.wrapping_sub(2.cast());
@@ -544,7 +552,7 @@ where
     x_uq0 -= F::RECIPROCAL_PRECISION.cast();
 
     dbg_prln!("x_uq0 after recip sub: ", x_uq0, " a_sig: ", a_significand);
-    
+
     // Now 1/b - (2*P) * 2^-W < x < 1/b
     // FIXME Is x_UQ0 still >= 0.5?
 
@@ -576,7 +584,12 @@ where
         residual_lo
     };
 
-    dbg_prln!("after step7 resid: ", residual_lo, ", quotient: ", quotient_uq1);
+    dbg_prln!(
+        "after step7 resid: ",
+        residual_lo,
+        ", quotient: ",
+        quotient_uq1
+    );
 
     //drop mutability
     let quotient = quotient_uq1;
@@ -635,12 +648,19 @@ where
         ret
     };
 
-    dbg_prln!("first abs res: ", abs_result, " resid: ", residual_lo, " b sig: ",b_significand);
+    dbg_prln!(
+        "first abs res: ",
+        abs_result,
+        " resid: ",
+        residual_lo,
+        " b sig: ",
+        b_significand
+    );
 
     residual_lo += abs_result & one; // tie to even
                                      // conditionally turns the below LT comparison into LTE
     abs_result += u8::from(residual_lo > b_significand).into();
-    
+
     dbg_prln!("abs res after resid > b_sig check: ", abs_result);
 
     if F::BITS == 128 || (F::BITS == 32 && F::HALF_ITERATIONS > 0) {
@@ -657,7 +677,7 @@ where
         abs_result +=
             u8::from(abs_result < inf_rep && residual_lo > (4 + 1).cast() * b_significand).into();
     }
-    
+
     dbg_prln!("final abs res: ", abs_result, "\n");
 
     F::from_repr(abs_result | quotient_sign)
