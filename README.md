@@ -100,9 +100,11 @@ rely on CI.
 
 ## Progress
 
+- [x] aarch64/chkstk.S
 - [x] adddf3.c
 - [x] addsf3.c
 - [x] arm/adddf3vfp.S
+- [x] arm/addsf3.S
 - [x] arm/addsf3vfp.S
 - [x] arm/aeabi_dcmp.S
 - [x] arm/aeabi_fcmp.S
@@ -113,6 +115,7 @@ rely on CI.
 - [x] arm/aeabi_memset.S
 - [x] arm/aeabi_uidivmod.S
 - [x] arm/aeabi_uldivmod.S
+- [ ] arm/chkstk.S
 - [x] arm/divdf3vfp.S
 - [ ] arm/divmodsi4.S (generic version is done)
 - [x] arm/divsf3vfp.S
@@ -154,12 +157,22 @@ rely on CI.
 - [ ] arm/unordsf2vfp.S
 - [x] ashldi3.c
 - [x] ashrdi3.c
+- [ ] avr/divmodhi4.S
+- [ ] avr/divmodqi4.S
+- [ ] avr/mulhi3.S
+- [ ] avr/mulqi3.S
+- [ ] avr/udivmodhi4.S
+- [ ] avr/udivmodqi4.S
+- [ ] bswapdi2.c
+- [ ] bswapsi2.c
+- [ ] bswapti2.c
 - [x] comparedf2.c
 - [x] comparesf2.c
 - [x] divdf3.c
 - [x] divdi3.c
 - [x] divmoddi4.c
 - [x] divmodsi4.c
+- [x] divmodti4.c
 - [x] divsf3.c
 - [x] divsi3.c
 - [x] extendsfdf2.c
@@ -198,6 +211,8 @@ rely on CI.
 - [x] mulsf3.c
 - [x] powidf2.c
 - [x] powisf2.c
+- [ ] riscv/muldi3.S
+- [ ] riscv/mulsi3.S
 - [x] subdf3.c
 - [x] subsf3.c
 - [x] truncdfsf2.c
@@ -247,8 +262,10 @@ These builtins are needed to support `f16` and `f128`, which are in the process 
 - [x] fixunstfti.c
 - [ ] floatditf.c
 - [ ] floatsitf.c
+- [ ] floattitf.c
 - [ ] floatunditf.c
 - [ ] floatunsitf.c
+- [ ] floatuntitf.c
 - [x] multf3.c
 - [ ] powitf2.c
 - [x] subtf3.c
@@ -263,6 +280,7 @@ These builtins are needed to support `f16` and `f128`, which are in the process 
 These builtins are for x87 `f80` floating-point numbers that are not supported
 by Rust.
 
+- ~~extendxftf2.c~~
 - ~~fixunsxfdi.c~~
 - ~~fixunsxfsi.c~~
 - ~~fixunsxfti.c~~
@@ -282,14 +300,24 @@ numbers.
 
 - ~~ppc/divtc3.c~~
 - ~~ppc/fixtfdi.c~~
+- ~~ppc/fixtfti.c~~
 - ~~ppc/fixunstfdi.c~~
+- ~~ppc/fixunstfti.c~~
 - ~~ppc/floatditf.c~~
+- ~~ppc/floattitf.c~~
 - ~~ppc/floatunditf.c~~
 - ~~ppc/gcc_qadd.c~~
 - ~~ppc/gcc_qdiv.c~~
 - ~~ppc/gcc_qmul.c~~
 - ~~ppc/gcc_qsub.c~~
 - ~~ppc/multc3.c~~
+
+These builtins are for 16-bit brain floating-point numbers that are not
+supported by Rust.
+
+- ~~truncdfbf2.c~~
+- ~~truncsfbf2.c~~
+- ~~trunctfxf2.c~~
 
 These builtins involve complex floating-point types that are not supported by
 Rust.
@@ -339,6 +367,7 @@ These builtins are never called by LLVM.
 - ~~ctzdi2.c~~
 - ~~ctzsi2.c~~
 - ~~ctzti2.c~~
+- ~~ffssi2.c~~
 - ~~ffsdi2.c~~ - this is [called by gcc][jemalloc-fail] though!
 - ~~ffsti2.c~~
 - ~~mulvdi3.c~~
@@ -401,13 +430,63 @@ Rust only exposes atomic types on platforms that support them, and therefore doe
 
 Miscellaneous functionality that is not used by Rust.
 
+- ~~aarch64/fp_mode.c~~
+- ~~aarch64/lse.S~~ (LSE atomics)
+- ~~aarch64/sme-abi-init.c~~ (matrix extension)
+- ~~aarch64/sme-abi.S~~ (matrix extension)
+- ~~aarch64/sme-libc-routines.c~~ (matrix extension)
 - ~~apple_versioning.c~~
+- ~~arm/fp_mode.c~~
+- ~~avr/exit.S~~
 - ~~clear_cache.c~~
+- ~~cpu_model/aarch64.c~~
+- ~~cpu_model/x86.c~~
+- ~~crtbegin.c~~
+- ~~crtend.c~~
 - ~~emutls.c~~
 - ~~enable_execute_stack.c~~
 - ~~eprintf.c~~
+- ~~fp_mode.c~~ (float exception handling)
 - ~~gcc_personality_v0.c~~
+- ~~i386/fp_mode.c~~
+- ~~int_util.c~~
+- ~~loongarch/fp_mode.c~~
+- ~~os_version_check.c~~
+- ~~riscv/fp_mode.c~~
+- ~~riscv/restore.S~~ (callee-saved registers)
+- ~~riscv/save.S~~ (callee-saved registers)
 - ~~trampoline_setup.c~~
+- ~~ve/grow_stack.S~~
+- ~~ve/grow_stack_align.S~~
+
+These builtins are only used by the Hexagon DSP (tier 3)
+
+- ~~hexagon/common_entry_exit_abi1.S~~
+- ~~hexagon/common_entry_exit_abi2.S~~
+- ~~hexagon/common_entry_exit_legacy.S~~
+- ~~hexagon/dfaddsub.S~~
+- ~~hexagon/dfdiv.S~~
+- ~~hexagon/dffma.S~~
+- ~~hexagon/dfminmax.S~~
+- ~~hexagon/dfmul.S~~
+- ~~hexagon/dfsqrt.S~~
+- ~~hexagon/divdi3.S~~
+- ~~hexagon/divsi3.S~~
+- ~~hexagon/fastmath2_dlib_asm.S~~
+- ~~hexagon/fastmath2_ldlib_asm.S~~
+- ~~hexagon/fastmath_dlib_asm.S~~
+- ~~hexagon/memcpy_forward_vp4cp4n2.S~~
+- ~~hexagon/memcpy_likely_aligned.S~~
+- ~~hexagon/moddi3.S~~
+- ~~hexagon/modsi3.S~~
+- ~~hexagon/sfdiv_opt.S~~
+- ~~hexagon/sfsqrt_opt.S~~
+- ~~hexagon/udivdi3.S~~
+- ~~hexagon/udivmoddi4.S~~
+- ~~hexagon/udivmodsi4.S~~
+- ~~hexagon/udivsi3.S~~
+- ~~hexagon/umoddi3.S~~
+- ~~hexagon/umodsi3.S~~
 
 Floating-point implementations of builtins that are only called from soft-float code. It would be better to simply use the generic soft-float versions in this case.
 
