@@ -91,6 +91,7 @@ unsafe fn atomic_cmpxchg<T>(ptr: *mut T, oldval: u32, newval: u32) -> u32 {
 macro_rules! atomic_rmw {
     ($name:ident, $ty:ty, $op:expr, $fetch:expr) => {
         intrinsics! {
+            #[always_strong_if(target_os = "android")]
             pub unsafe extern "C" fn $name(ptr: *mut $ty, val: $ty) -> $ty {
                 atomic_rmw(ptr, |x| $op(x as $ty, val) as u32, |old, new| $fetch(old, new)) as $ty
             }
@@ -105,9 +106,11 @@ macro_rules! atomic_rmw {
         atomic_rmw!($name, $ty, $op, |_, new| new);
     };
 }
+
 macro_rules! atomic_cmpxchg {
     ($name:ident, $ty:ty) => {
         intrinsics! {
+            #[always_strong_if(target_os = "android")]
             pub unsafe extern "C" fn $name(ptr: *mut $ty, oldval: $ty, newval: $ty) -> $ty {
                 atomic_cmpxchg(ptr, oldval as u32, newval as u32) as $ty
             }

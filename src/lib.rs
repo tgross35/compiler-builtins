@@ -27,6 +27,7 @@
 #![allow(clippy::manual_swap)]
 // Support compiling on both stage0 and stage1 which may differ in supported stable features.
 #![allow(stable_features)]
+#![recursion_limit = "256"] // We have some large macros
 
 // We disable #[no_mangle] for tests so that we can verify the test results
 // against the native compiler-rt implementations of the builtins.
