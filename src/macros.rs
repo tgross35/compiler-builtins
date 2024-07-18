@@ -435,7 +435,56 @@ macro_rules! intrinsics {
         intrinsics!($($rest)*);
     );
 
-    // This is the final catch-all rule. At this point we generate an
+    // This is the last rule for anything that has `strong_if`, which can be
+    // provided to opt out of the default weak linkage.
+    //
+    // This attribute takes a `cfg` predicate, e.g. `#![strong_if(target_arch = "mips")]`
+    (
+
+        #[strong_if($($strong:tt)*)]
+        $(#[$($attr:tt)*])*
+        pub $(unsafe $(@ $empty:tt)?)? extern $abi:tt fn $name:ident( $($argname:ident:  $ty:ty),* ) $(-> $ret:ty)? {
+            $($body:tt)*
+        }
+
+        $($rest:tt)*
+    ) => (
+        intrinsics!(
+            @final
+            func:
+                $(#[$($attr)*])*
+                pub $(unsafe $($empty)?)? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {
+                    $($body)*
+                }
+            strong_if: ( $($strong)* )
+            rest: $($rest)*
+        );
+    );
+
+    // This is the final catch-all rule, used by everything that does not have
+    // `strong_if` (above). The rule just converts matched syntax into the
+    // struct-like syntax used by `@final`.
+    (
+        $(#[$($attr:tt)*])*
+        pub $(unsafe $(@ $empty:tt)?)? extern $abi:tt fn $name:ident( $($argname:ident:  $ty:ty),* ) $(-> $ret:ty)? {
+            $($body:tt)*
+        }
+
+        $($rest:tt)*
+    ) => (
+        intrinsics!(
+            @final
+            func:
+                $(#[$($attr)*])*
+                pub $(unsafe $($empty)?)? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {
+                    $($body)*
+                }
+            strong_if:
+            rest: $($rest)*
+        );
+    );
+
+    // This is where everything gets instantiated. At this point we generate an
     // intrinsic with a conditional `#[no_mangle]` directive to avoid
     // interfering with duplicate symbols and whatnot during testing.
     //
@@ -448,12 +497,15 @@ macro_rules! intrinsics {
     // After the intrinsic is defined we just continue with the rest of the
     // input we were given.
     (
-        $(#[$($attr:tt)*])*
-        pub $(unsafe $(@ $empty:tt)?)? extern $abi:tt fn $name:ident( $($argname:ident:  $ty:ty),* ) $(-> $ret:ty)? {
-            $($body:tt)*
-        }
+        @final
+        func:
+            $(#[$($attr:tt)*])*
+            pub $(unsafe $(@ $empty:tt)?)? extern $abi:tt fn $name:ident( $($argname:ident:  $ty:ty),* ) $(-> $ret:ty)? {
+                $($body:tt)*
+            }
 
-        $($rest:tt)*
+        strong_if: $( ( $($strong:tt)* ) )?
+        rest: $($rest:tt)*
     ) => (
         $(#[$($attr)*])*
         pub $(unsafe $($empty)?)? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {
@@ -464,7 +516,10 @@ macro_rules! intrinsics {
         mod $name {
             $(#[$($attr)*])*
             #[no_mangle]
-            #[cfg_attr(all(not(windows), not(target_vendor = "apple")), linkage = "weak")]
+            #[cfg_attr(
+                not(any(windows, target_vendor = "apple" $(, $($strong)* )?)),
+                linkage = "weak"
+            )]
             $(unsafe $($empty)?)? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {
                 super::$name($($argname),*)
             }
