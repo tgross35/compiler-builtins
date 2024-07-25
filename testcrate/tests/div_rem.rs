@@ -202,6 +202,9 @@ fn problem_f128() {
         b.to_bits(),
         res.to_bits()
     );
+    // got 0x3f8f0000000000000000000000000001
+    // exp 0x3f8e0000000000000000000000000001
+    assert_eq!(res.to_bits(), 0x3F8E0000000000000000000000000001);
     panic!();
 }
 
@@ -219,6 +222,7 @@ fn problem_f64() {
         res.to_bits()
     );
     // 0x3CA0000000000001
+    assert_eq!(res.to_bits(), 0x3CA0000000000001);
     panic!();
 }
 
@@ -236,5 +240,6 @@ fn problem_f32() {
         res.to_bits()
     );
     // 0x33800001
+    assert_eq!(res.to_bits(), 0x33800001);
     panic!();
 }

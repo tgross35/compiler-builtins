@@ -51,7 +51,7 @@ pub(crate) trait Float:
     /// The bitwidth of the exponent
     const EXPONENT_BITS: u32 = Self::BITS - Self::SIGNIFICAND_BITS - 1;
 
-    /// The maximum value of the exponent
+    /// The saturated value of the exponent (infinite representation)
     const EXPONENT_MAX: u32 = (1 << Self::EXPONENT_BITS) - 1;
 
     /// The exponent bias value
