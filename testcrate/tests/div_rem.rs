@@ -209,7 +209,7 @@ fn problem_f128() {
 }
 
 #[test]
-fn problem_f64() {
+fn not_problem_f64() {
     use compiler_builtins::float::div::__divdf3;
 
     let a = f64::from_bits(0x0000000000000001);
@@ -227,7 +227,7 @@ fn problem_f64() {
 }
 
 #[test]
-fn problem_f32() {
+fn not_problem_f32() {
     use compiler_builtins::float::div::__divsf3;
 
     let a = f32::from_bits(0x00000001);

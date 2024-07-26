@@ -125,6 +125,7 @@ where
     F::Int: fmt::Display,
     F::Int: fmt::Binary,
     F::SignedInt: fmt::Display,
+    HalfRep<F>: fmt::LowerHex,
     HalfRep<F>: fmt::Display,
     // <F::Int as HInt>::D: core::ops::Shr<u32, Output = <F::Int as HInt>::D>,
     u16: CastInto<F::Int>,
@@ -314,7 +315,7 @@ where
 
         let c_hw = F::C_HW;
 
-        println!("using half iterations. b_uq1_hw: {b_uq1_hw}");
+        println!("using half iterations. b_uq1_hw: {b_uq1_hw:#018x}");
 
         // b >= 1, thus an upper bound for 3/4 + 1/sqrt(2) - b/2 is about 0.9572,
         // so x0 fits to UQ0.HW without wrapping.
@@ -458,7 +459,7 @@ where
         x_uq0
     };
 
-    println!("initial x_uq0: {}", x_uq0);
+    println!("initial x_uq0: {:#034x}", x_uq0);
 
     if F::USE_NATIVE_FULL_ITERATIONS {
         // for _ in 0..F::FULL_ITERATIONS {
