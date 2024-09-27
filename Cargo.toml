@@ -25,9 +25,6 @@ include = [
 ]
 links = 'compiler-rt'
 
-[lib]
-test = false
-
 [dependencies]
 # For more information on this dependency see
 # https://github.com/rust-lang/rust/tree/master/library/rustc-std-workspace-core

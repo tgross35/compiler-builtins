@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "compiler-builtins", compiler_builtins)]
+#![cfg_attr(all(feature = "compiler-builtins", not(test)), compiler_builtins)]
 #![cfg_attr(not(feature = "no-asm"), feature(asm))]
 #![feature(abi_unadjusted)]
 #![feature(asm_experimental_arch)]

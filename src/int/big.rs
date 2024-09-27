@@ -284,3 +284,33 @@ impl DInt for i256 {
         i128::from_le_bytes(tmp)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    extern crate alloc;
+    extern crate std;
+
+    use alloc::format;
+    use alloc::string::String;
+    use std::prelude::rust_2021::*;
+
+    const LOHI_SPLIT: u128 = 0xaaaaaaaaaaaaaaaaffffffffffffffff;
+
+    /// Print a `u256` as hex since we can't add format implementations
+    fn hexu(v: u256) -> String {
+        format!(
+            "0x{:016x}{:016x}{:016x}{:016x}",
+            v.0[3], v.0[2], v.0[1], v.0[0]
+        )
+    }
+
+    #[test]
+    fn widen_u128() {
+        assert_eq!(u128::MAX.widen(), u256([u64::MAX, u64::MAX, 0, 0]));
+        assert_eq!(
+            LOHI_SPLIT.widen(),
+            u256([u64::MAX, 0xaaaaaaaaaaaaaaaa, 0, 0])
+        );
+    }
+}
