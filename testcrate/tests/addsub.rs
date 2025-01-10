@@ -59,7 +59,7 @@ mod int_addsub {
                         if sub0 != sub1 || i32::from(sub_o0) != sub_o1 {
                             panic!(
                                 "{}({}, {}): std: {:?}, builtins: {:?}",
-                                stringify!($fn_sub), x, y, (sub0, sub_o0) , (sub1, sub_o1)
+                                stringify!($fn_sub), x, y, (sub0, sub_o0), (sub1, sub_o1)
                             );
                         }
                     });
