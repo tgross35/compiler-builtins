@@ -44,8 +44,8 @@ mod int_addsub {
                     use compiler_builtins::int::addsub::{$fn_add, $fn_sub};
 
                     fuzz_2(N, |x: $i, y: $i| {
-                        let (add0, add_o0)= x.overflowing_add(y);
-                        let (sub0, sub_o0)= x.overflowing_sub(y);
+                        let (add0, add_o0) = x.overflowing_add(y);
+                        let (sub0, sub_o0) = x.overflowing_sub(y);
                         let mut add_o1 = 0;
                         let mut sub_o1 = 0;
                         let add1: $i = $fn_add(x, y, &mut add_o1);
