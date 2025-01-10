@@ -53,7 +53,7 @@ mod int_addsub {
                         if add0 != add1 || i32::from(add_o0) != add_o1 {
                             panic!(
                                 "{}({}, {}): std: {:?}, builtins: {:?}",
-                                stringify!($fn_add), x, y, (add0, add_o0) , (add1, add_o1)
+                                stringify!($fn_add), x, y, (add0, add_o0), (add1, add_o1)
                             );
                         }
                         if sub0 != sub1 || i32::from(sub_o0) != sub_o1 {
