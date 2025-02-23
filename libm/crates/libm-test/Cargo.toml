@@ -1,0 +1,65 @@
+[package]
+name = "libm-test"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+default = ["unstable-float"]
+
+# Propagated from libm because this affects which functions we test.
+unstable-float = ["libm/unstable-float", "rug?/nightly-float"]
+
+# Generate tests which are random inputs and the outputs are calculated with
+# musl libc.
+test-multiprecision = ["dep:az", "dep:rug", "dep:gmp-mpfr-sys"]
+
+# Build our own musl for testing and benchmarks
+build-musl = ["dep:musl-math-sys"]
+
+# Enable report generation without bringing in more dependencies by default
+benchmarking-reports = ["criterion/plotters", "criterion/html_reports"]
+
+# Run with a reduced set of benchmarks, such as for CI
+short-benchmarks = []
+
+[dependencies]
+anyhow = "1.0.90"
+az = { version = "1.2.1", optional = true }
+gmp-mpfr-sys = { version = "1.6.4", optional = true, default-features = false, features = ["mpfr"] }
+indicatif = { version = "0.17.9", default-features = false }
+libm = { path = "../..", features = ["unstable-public-internals"] }
+libm-macros = { path = "../libm-macros" }
+musl-math-sys = { path = "../musl-math-sys", optional = true }
+paste = "1.0.15"
+rand = "0.8.5"
+rand_chacha = "0.3.1"
+rayon = "1.10.0"
+rug = { version = "1.26.1", optional = true, default-features = false, features = ["float", "std"] }
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+# Enable randomness on WASM
+getrandom = { version = "0.2", features = ["js"] }
+
+[build-dependencies]
+rand = { version = "0.8.5", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5.1", default-features = false, features = ["cargo_bench_support"] }
+libtest-mimic = "0.8.1"
+
+[[bench]]
+name = "random"
+harness = false
+
+[[test]]
+# No harness so that we can skip tests at runtime based on env. Prefixed with
+# `z` so these tests get run last.
+name = "z_extensive"
+harness = false
+
+[lints.rust]
+# Values from the chared config.rs used by `libm` but not the test crate
+unexpected_cfgs = { level = "warn", check-cfg = [
+  'cfg(feature, values("arch", "force-soft-floats", "unstable-intrinsics"))',
+] }

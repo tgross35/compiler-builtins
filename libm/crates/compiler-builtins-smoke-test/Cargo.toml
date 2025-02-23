@@ -1,0 +1,24 @@
+[package]
+name = "cb"
+version = "0.1.0"
+authors = ["Jorge Aparicio <jorge@japaric.io>"]
+edition = "2021"
+publish = false
+
+[lib]
+test = false
+bench = false
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+  "cfg(arch_enabled)",
+  "cfg(assert_no_panic)",
+  "cfg(f128_enabled)",
+  "cfg(f16_enabled)",
+  "cfg(intrinsics_enabled)",
+  'cfg(feature, values("checked"))',
+  'cfg(feature, values("force-soft-floats"))',
+  'cfg(feature, values("unstable"))',
+  'cfg(feature, values("unstable-intrinsics"))',
+  'cfg(feature, values("unstable-public-internals"))',
+] }
