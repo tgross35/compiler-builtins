@@ -57,6 +57,9 @@ pub mod aarch64;
 #[cfg(all(target_arch = "aarch64", target_os = "linux", not(feature = "no-asm"),))]
 pub mod aarch64_linux;
 
+#[cfg(target_arch = "avr")]
+pub mod avr;
+
 #[cfg(all(
     kernel_user_helpers,
     any(target_os = "linux", target_os = "android"),
