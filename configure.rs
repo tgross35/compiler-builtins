@@ -68,11 +68,13 @@ pub fn configure_f16_f128(target: &Target) {
     //
     // Original source of this list:
     // <https://github.com/rust-lang/compiler-builtins/pull/652#issuecomment-2266151350>
+    #[allow(unexpected_cfgs)]
     let f16_enabled = match target.arch.as_str() {
         // Unsupported <https://github.com/llvm/llvm-project/issues/94434>
         "arm64ec" => false,
         // Crash in LLVM20 <https://github.com/llvm/llvm-project/issues/129394>
         "aarch64" if !target.features.iter().any(|f| f == "neon") => false,
+        "s390x" if cfg!(boostrap) => false,
         // Infinite recursion <https://github.com/llvm/llvm-project/issues/97981>
         // FIXME(llvm20): loongarch fixed by <https://github.com/llvm/llvm-project/pull/107791>
         "csky" => false,
