@@ -57,6 +57,7 @@ impl Target {
 }
 
 /// Configure whether or not `f16` and `f128` support should be enabled.
+#[allow(unexpected_cfgs)]
 pub fn configure_f16_f128(target: &Target) {
     // Set whether or not `f16` and `f128` are supported at a basic level by LLVM. This only means
     // that the backend will not crash when using these types and generates code that can be called
@@ -68,7 +69,6 @@ pub fn configure_f16_f128(target: &Target) {
     //
     // Original source of this list:
     // <https://github.com/rust-lang/compiler-builtins/pull/652#issuecomment-2266151350>
-    #[allow(unexpected_cfgs)]
     let f16_enabled = match target.arch.as_str() {
         // Unsupported <https://github.com/llvm/llvm-project/issues/94434>
         "arm64ec" => false,
@@ -86,6 +86,13 @@ pub fn configure_f16_f128(target: &Target) {
         // Most everything else works as of LLVM 19
         _ => true,
     };
+
+    println!("cargo::warning=ARCH {}", &target.arch);
+    println!("cargo::warning=CFG {}", cfg!(bootstrap));
+
+    if !cfg!(bootstrap) {
+        panic!("not bootstrap");
+    }
 
     let f128_enabled = match target.arch.as_str() {
         // Unsupported (libcall is not supported) <https://github.com/llvm/llvm-project/issues/121122>
