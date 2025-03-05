@@ -74,7 +74,6 @@ pub fn configure_f16_f128(target: &Target) {
         "arm64ec" => false,
         // Crash in LLVM20 <https://github.com/llvm/llvm-project/issues/129394>
         "aarch64" if !target.features.iter().any(|f| f == "neon") => false,
-        "s390x" if cfg!(boostrap) => false,
         // Infinite recursion <https://github.com/llvm/llvm-project/issues/97981>
         // FIXME(llvm20): loongarch fixed by <https://github.com/llvm/llvm-project/pull/107791>
         "csky" => false,
@@ -86,13 +85,6 @@ pub fn configure_f16_f128(target: &Target) {
         // Most everything else works as of LLVM 19
         _ => true,
     };
-
-    println!("cargo::warning=ARCH {}", &target.arch);
-    println!("cargo::warning=CFG {}", cfg!(bootstrap));
-
-    if !cfg!(bootstrap) {
-        panic!("not bootstrap");
-    }
 
     let f128_enabled = match target.arch.as_str() {
         // Unsupported (libcall is not supported) <https://github.com/llvm/llvm-project/issues/121122>

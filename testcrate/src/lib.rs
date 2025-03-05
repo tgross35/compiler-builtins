@@ -14,7 +14,7 @@
 //! correct rounding.
 #![no_std]
 #![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(all(f16_enabled, not(bootstrap)), feature(f16))]
 
 pub mod bench;
 extern crate alloc;

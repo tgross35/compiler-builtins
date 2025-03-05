@@ -1,5 +1,5 @@
 #![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(all(f16_enabled, not(bootstrap)), feature(f16))]
 // makes configuration easier
 #![allow(unused_macros)]
 #![allow(unused_imports)]
@@ -305,7 +305,7 @@ mod extend {
         f32 => f64, Single => Double, __extendsfdf2, all();
     }
 
-    #[cfg(all(f16_enabled, f128_enabled))]
+    #[cfg(all(all(f16_enabled, not(bootstrap)), f128_enabled))]
     #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
     f_to_f! {
         extend,
@@ -335,7 +335,7 @@ mod trunc {
         f64 => f32, Double => Single, __truncdfsf2, all();
     }
 
-    #[cfg(all(f16_enabled, f128_enabled))]
+    #[cfg(all(all(f16_enabled, not(bootstrap)), f128_enabled))]
     #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
     f_to_f! {
         trunc,

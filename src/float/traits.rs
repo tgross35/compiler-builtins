@@ -181,7 +181,7 @@ macro_rules! float_impl {
     };
 }
 
-#[cfg(f16_enabled)]
+#[cfg(all(f16_enabled, not(bootstrap)))]
 float_impl!(f16, u16, i16, i8, 16, 10);
 float_impl!(f32, u32, i32, i16, 32, 23);
 float_impl!(f64, u64, i64, i16, 64, 52);

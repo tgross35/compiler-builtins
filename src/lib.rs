@@ -8,7 +8,7 @@
 #![feature(linkage)]
 #![feature(naked_functions)]
 #![feature(repr_simd)]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(all(f16_enabled, not(bootstrap)), feature(f16))]
 #![cfg_attr(f128_enabled, feature(f128))]
 #![no_builtins]
 #![no_std]

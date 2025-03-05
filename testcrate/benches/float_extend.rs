@@ -1,12 +1,12 @@
 #![allow(unused_variables)] // "unused" f16 registers
 #![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(all(f16_enabled, not(bootstrap)), feature(f16))]
 
 use compiler_builtins::float::extend;
 use criterion::{criterion_main, Criterion};
 use testcrate::float_bench;
 
-#[cfg(f16_enabled)]
+#[cfg(all(f16_enabled, not(bootstrap)))]
 float_bench! {
     name: extend_f16_f32,
     sig: (a: f16) -> f32,
@@ -28,7 +28,7 @@ float_bench! {
     ],
 }
 
-#[cfg(f16_enabled)]
+#[cfg(all(f16_enabled, not(bootstrap)))]
 float_bench! {
     name: extend_f16_f64,
     sig: (a: f16) -> f64,
@@ -50,7 +50,7 @@ float_bench! {
     ],
 }
 
-#[cfg(all(f16_enabled, f128_enabled))]
+#[cfg(all(all(f16_enabled, not(bootstrap)), f128_enabled))]
 float_bench! {
     name: extend_f16_f128,
     sig: (a: f16) -> f128,
@@ -111,7 +111,7 @@ pub fn float_extend() {
     let mut criterion = Criterion::default().configure_from_args();
 
     // FIXME(#655): `f16` tests disabled until we can bootstrap symbols
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
     {
         extend_f16_f32(&mut criterion);

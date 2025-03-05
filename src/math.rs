@@ -20,7 +20,7 @@ macro_rules! libm_intrinsics {
 /// This set of functions is well tested in `libm` and known to provide similar performance to
 /// system `libm`, as well as the same or better accuracy.
 pub mod full_availability {
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     libm_intrinsics! {
         fn ceilf16(x: f16) -> f16;
         fn copysignf16(x: f16, y: f16) -> f16;

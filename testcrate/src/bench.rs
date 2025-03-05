@@ -348,7 +348,7 @@ macro_rules! impl_testio {
     }
 }
 
-#[cfg(f16_enabled)]
+#[cfg(all(f16_enabled, not(bootstrap)))]
 impl_testio!(float f16);
 impl_testio!(float f32, f64);
 #[cfg(f128_enabled)]

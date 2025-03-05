@@ -27,18 +27,18 @@ extern "C" {}
 mod intrinsics {
     /* f16 operations */
 
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub fn extendhfsf(x: f16) -> f32 {
         x as f32
     }
 
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub fn extendhfdf(x: f16) -> f64 {
         x as f64
     }
 
     #[cfg(all(
-        f16_enabled,
+        all(f16_enabled, not(bootstrap)),
         f128_enabled,
         not(any(target_arch = "powerpc", target_arch = "powerpc64"))
     ))]
@@ -48,7 +48,7 @@ mod intrinsics {
 
     /* f32 operations */
 
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub fn truncsfhf(x: f32) -> f16 {
         x as f16
     }
@@ -199,7 +199,7 @@ mod intrinsics {
     /* f128 operations */
 
     #[cfg(all(
-        f16_enabled,
+        all(f16_enabled, not(bootstrap)),
         f128_enabled,
         not(any(target_arch = "powerpc", target_arch = "powerpc64"))
     ))]
@@ -532,12 +532,12 @@ fn run() {
     bb(divti3(bb(2), bb(2)));
     #[cfg(f128_enabled)]
     bb(eqtf(bb(2.), bb(2.)));
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     bb(extendhfdf(bb(2.)));
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     bb(extendhfsf(bb(2.)));
     #[cfg(all(
-        f16_enabled,
+        all(f16_enabled, not(bootstrap)),
         f128_enabled,
         not(any(target_arch = "powerpc", target_arch = "powerpc64"))
     ))]
@@ -608,12 +608,12 @@ fn run() {
     bb(multi3(bb(2), bb(2)));
     #[cfg(f128_enabled)]
     bb(subtf(bb(2.), bb(2.)));
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     bb(truncsfhf(bb(2.)));
     #[cfg(f128_enabled)]
     bb(trunctfdf(bb(2.)));
     #[cfg(all(
-        f16_enabled,
+        all(f16_enabled, not(bootstrap)),
         f128_enabled,
         not(any(target_arch = "powerpc", target_arch = "powerpc64"))
     ))]

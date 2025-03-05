@@ -128,7 +128,7 @@ intrinsics! {
     #[aapcs_on_arm]
     #[apple_f16_ret_abi]
     #[arm_aeabi_alias = __aeabi_f2h]
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub extern "C" fn __truncsfhf2(a: f32) -> f16 {
         trunc(a)
     }
@@ -136,7 +136,7 @@ intrinsics! {
     #[avr_skip]
     #[aapcs_on_arm]
     #[apple_f16_ret_abi]
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub extern "C" fn __gnu_f2h_ieee(a: f32) -> f16 {
         trunc(a)
     }
@@ -145,7 +145,7 @@ intrinsics! {
     #[aapcs_on_arm]
     #[apple_f16_ret_abi]
     #[arm_aeabi_alias = __aeabi_d2h]
-    #[cfg(f16_enabled)]
+    #[cfg(all(f16_enabled, not(bootstrap)))]
     pub extern "C" fn __truncdfhf2(a: f64) -> f16 {
         trunc(a)
     }
@@ -153,7 +153,7 @@ intrinsics! {
     #[avr_skip]
     #[aapcs_on_arm]
     #[ppc_alias = __trunckfhf2]
-    #[cfg(all(f16_enabled, f128_enabled))]
+    #[cfg(all(all(f16_enabled, not(bootstrap)), f128_enabled))]
     pub extern "C" fn __trunctfhf2(a: f128) -> f16 {
         trunc(a)
     }
