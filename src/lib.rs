@@ -14,6 +14,7 @@
 #![no_std]
 #![allow(unused_features)]
 #![allow(internal_features)]
+#![allow(unexpected_cfgs)]
 // We use `u128` in a whole bunch of places which we currently agree with the
 // compiler on ABIs and such, so we should be "good enough" for now and changes
 // to the `u128` ABI will be reflected here.
@@ -41,12 +42,14 @@ mod macros;
 
 pub mod float;
 pub mod int;
-// pub mod math;
+#[cfg(not(bootstrap))]
+pub mod math;
 pub mod mem;
 
 // `libm` expects its `support` module to be available in the crate root. This config can be
 // cleaned up once `libm` is made always available.
-// use math::libm::support;
+#[cfg(not(bootstrap))]
+use math::libm::support;
 
 #[cfg(target_arch = "arm")]
 pub mod arm;
