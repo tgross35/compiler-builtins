@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.151](https://github.com/rust-lang/compiler-builtins/compare/compiler_builtins-v0.1.150...compiler_builtins-v0.1.151) - 2025-03-05
+
+### Other
+
+- Add cygwin support
+- Enable `f16` for LoongArch ([#770](https://github.com/rust-lang/compiler-builtins/pull/770))
+- Add __extendhfdf2 and add __truncdfhf2 test
+- Remove outdated information from the readme
+
+## [0.1.150](https://github.com/rust-lang/compiler-builtins/compare/compiler_builtins-v0.1.149...compiler_builtins-v0.1.150) - 2025-03-01
+
+### Other
+
+- Disable `f16` on AArch64 without the `neon` feature
+- Update LLVM downloads to 20.1-2025-02-13
+
+## [0.1.149](https://github.com/rust-lang/compiler-builtins/compare/compiler_builtins-v0.1.148...compiler_builtins-v0.1.149) - 2025-02-25
+
+### Other
+
+- Make a subset of `libm` symbols weakly available on all platforms
+
+## [0.1.148](https://github.com/rust-lang/compiler-builtins/compare/compiler_builtins-v0.1.147...compiler_builtins-v0.1.148) - 2025-02-24
+
+### Other
+
+- Update the `libm` submodule
+- Enable `f16` for MIPS
+- Eliminate the use of `public_test_dep!` for a third time
+
 ## [0.1.147](https://github.com/rust-lang/compiler-builtins/compare/compiler_builtins-v0.1.146...compiler_builtins-v0.1.147) - 2025-02-19
 
 ### Other

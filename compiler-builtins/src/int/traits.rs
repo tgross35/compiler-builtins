@@ -1,29 +1,14 @@
 use core::ops;
 
-mod specialized_div_rem;
-
-pub mod addsub;
-mod big;
-pub mod bswap;
-pub mod leading_zeros;
-pub mod mul;
-pub mod sdiv;
-pub mod shift;
-pub mod trailing_zeros;
-pub mod udiv;
-
-pub use big::{i256, u256};
-
-public_test_dep! {
 /// Minimal integer implementations needed on all integer types, including wide integers.
 #[allow(dead_code)]
-pub(crate) trait MinInt: Copy
+pub trait MinInt:
+    Copy
     + core::fmt::Debug
     + ops::BitOr<Output = Self>
     + ops::Not<Output = Self>
     + ops::Shl<u32, Output = Self>
 {
-
     /// Type with the same width but other signedness
     type OtherSign: MinInt;
     /// Unsigned version of Self
@@ -40,12 +25,11 @@ pub(crate) trait MinInt: Copy
     const MIN: Self;
     const MAX: Self;
 }
-}
 
-public_test_dep! {
 /// Trait for some basic operations on integers
 #[allow(dead_code)]
-pub(crate) trait Int: MinInt
+pub trait Int:
+    MinInt
     + PartialEq
     + PartialOrd
     + ops::AddAssign
@@ -105,7 +89,6 @@ pub(crate) trait Int: MinInt
     fn overflowing_add(self, other: Self) -> (Self, bool);
     fn leading_zeros(self) -> u32;
     fn ilog2(self) -> u32;
-}
 }
 
 pub(crate) const fn make_fuzz_lengths(bits: u32) -> [u8; 20] {
@@ -288,10 +271,9 @@ int_impl!(i32, u32);
 int_impl!(i64, u64);
 int_impl!(i128, u128);
 
-public_test_dep! {
 /// Trait for integers twice the bit width of another integer. This is implemented for all
 /// primitives except for `u8`, because there is not a smaller primitive.
-pub(crate) trait DInt: MinInt {
+pub trait DInt: MinInt {
     /// Integer that is half the bit width of the integer this trait is implemented for
     type H: HInt<D = Self>;
 
@@ -308,12 +290,10 @@ pub(crate) trait DInt: MinInt {
         lo.zero_widen() | hi.widen_hi()
     }
 }
-}
 
-public_test_dep! {
 /// Trait for integers half the bit width of another integer. This is implemented for all
 /// primitives except for `u128`, because it there is not a larger primitive.
-pub(crate) trait HInt: Int {
+pub trait HInt: Int {
     /// Integer that is double the bit width of the integer this trait is implemented for
     type D: DInt<H = Self> + MinInt;
 
@@ -332,7 +312,6 @@ pub(crate) trait HInt: Int {
     fn zero_widen_mul(self, rhs: Self) -> Self::D;
     /// Widening multiplication. This cannot overflow.
     fn widen_mul(self, rhs: Self) -> Self::D;
-}
 }
 
 macro_rules! impl_d_int {
@@ -390,15 +369,13 @@ impl_h_int!(
     i64 u64 i128
 );
 
-public_test_dep! {
 /// Trait to express (possibly lossy) casting of integers
-pub(crate) trait CastInto<T: Copy>: Copy {
+pub trait CastInto<T: Copy>: Copy {
     fn cast(self) -> T;
 }
 
-pub(crate) trait CastFrom<T: Copy>:Copy {
+pub trait CastFrom<T: Copy>: Copy {
     fn cast_from(value: T) -> Self;
-}
 }
 
 impl<T: Copy, U: CastInto<T> + Copy> CastFrom<U> for T {

@@ -1,16 +1,29 @@
 use std::collections::HashSet;
 
+mod builtins_configure {
+    include!("../compiler-builtins/configure.rs");
+}
+
 /// Features to enable
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Feature {
     NoSysF128,
     NoSysF128IntConvert,
     NoSysF16,
+    NoSysF16F64Convert,
     NoSysF16F128Convert,
 }
 
-mod builtins_configure {
-    include!("../configure.rs");
+impl Feature {
+    fn implies(self) -> &'static [Self] {
+        match self {
+            Self::NoSysF128 => [Self::NoSysF128IntConvert, Self::NoSysF16F128Convert].as_slice(),
+            Self::NoSysF128IntConvert => [].as_slice(),
+            Self::NoSysF16 => [Self::NoSysF16F64Convert, Self::NoSysF16F128Convert].as_slice(),
+            Self::NoSysF16F64Convert => [].as_slice(),
+            Self::NoSysF16F128Convert => [].as_slice(),
+        }
+    }
 }
 
 fn main() {
@@ -39,8 +52,6 @@ fn main() {
         || target.arch == "powerpc64"
     {
         features.insert(Feature::NoSysF128);
-        features.insert(Feature::NoSysF128IntConvert);
-        features.insert(Feature::NoSysF16F128Convert);
     }
 
     if target.arch == "x86" {
@@ -57,6 +68,7 @@ fn main() {
         || target.arch == "powerpc"
         || target.arch == "powerpc64"
         || target.arch == "powerpc64le"
+        || target.arch == "loongarch64"
         || (target.arch == "x86" && !target.has_feature("sse"))
         || target.os == "windows"
         // Linking says "error: function signature mismatch: __extendhfsf2" and seems to
@@ -66,8 +78,21 @@ fn main() {
         || target.arch == "wasm64"
     {
         features.insert(Feature::NoSysF16);
-        features.insert(Feature::NoSysF16F128Convert);
     }
+
+    // These platforms are missing either `__extendhfdf2` or `__truncdfhf2`.
+    if target.vendor == "apple" || target.os == "windows" {
+        features.insert(Feature::NoSysF16F64Convert);
+    }
+
+    // Add implied features. Collection is required for borrows.
+    features.extend(
+        features
+            .iter()
+            .flat_map(|x| x.implies())
+            .copied()
+            .collect::<Vec<_>>(),
+    );
 
     for feature in features {
         let (name, warning) = match feature {
@@ -75,6 +100,10 @@ fn main() {
             Feature::NoSysF128IntConvert => (
                 "no-sys-f128-int-convert",
                 "using apfloat fallback for f128 <-> int conversions",
+            ),
+            Feature::NoSysF16F64Convert => (
+                "no-sys-f16-f64-convert",
+                "using apfloat fallback for f16 <-> f64 conversions",
             ),
             Feature::NoSysF16F128Convert => (
                 "no-sys-f16-f128-convert",
@@ -86,5 +115,6 @@ fn main() {
         println!("cargo:rustc-cfg=feature=\"{name}\"");
     }
 
+    builtins_configure::configure_aliases(&target);
     builtins_configure::configure_f16_f128(&target);
 }

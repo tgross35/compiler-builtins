@@ -1,50 +1,12 @@
 # `compiler-builtins`
 
-> Porting `compiler-rt` intrinsics to Rust
+This crate provides external symbols that the compiler expects to be available when
+building Rust projects, typically software routines for basic operations that do not
+have hardware support. It is largely a port of LLVM's [`compiler-rt`].
 
-See [rust-lang/rust#35437][0].
+It is distributed as part of Rust's sysroot.
 
-[0]: https://github.com/rust-lang/rust/issues/35437
-
-## When and how to use this crate?
-
-If you are working with a target that doesn't have binary releases of std
-available via rustup (this probably means you are building the core crate
-yourself) and need compiler-rt intrinsics (i.e. you are probably getting linker
-errors when building an executable: `undefined reference to __aeabi_memcpy`),
-you can use this crate to get those intrinsics and solve the linker errors. To
-do that, add this crate somewhere in the dependency graph of the crate you are
-building:
-
-```toml
-# Cargo.toml
-[dependencies]
-compiler_builtins = { git = "https://github.com/rust-lang/compiler-builtins" }
-```
-
-```rust
-extern crate compiler_builtins;
-
-// ...
-```
-
-If you still get an "undefined reference to $INTRINSIC" error after that change,
-that means that we haven't ported `$INTRINSIC` to Rust yet! Please open [an
-issue] with the name of the intrinsic and the LLVM triple (e.g.
-thumbv7m-none-eabi) of the target you are using. That way we can prioritize
-porting that particular intrinsic.
-
-If you've got a C compiler available for your target then while we implement
-this intrinsic you can temporarily enable a fallback to the actual compiler-rt
-implementation as well for unimplemented intrinsics:
-
-```toml
-[dependencies.compiler_builtins]
-git = "https://github.com/rust-lang/compiler-builtins"
-features = ["c"]
-```
-
-[an issue]: https://github.com/rust-lang/compiler-builtins/issues
+[`compiler-rt`]: https://github.com/llvm/llvm-project/tree/1b1dc505057322f4fa1110ef4f53c44347f52986/compiler-rt
 
 ## Contributing
 
@@ -54,8 +16,8 @@ features = ["c"]
    [C implementation][2] to Rust.
 4. Add a test to compare the behavior of the ported intrinsic(s) with their
    implementation on the testing host.
-5. Add the intrinsic to `examples/intrinsics.rs` to verify it can be linked on
-   all targets.
+5. Add the intrinsic to `builtins-test-intrinsics/src/main.rs` to verify it
+   can be linked on all targets.
 6. Send a Pull Request (PR).
 7. Once the PR passes our extensive testing infrastructure, we'll merge it!
 8. Celebrate :tada:
@@ -89,8 +51,8 @@ to test against, located in a directory called `compiler-rt`. This can be
 obtained with the following:
 
 ```sh
-curl -L -o rustc-llvm-19.1.tar.gz https://github.com/rust-lang/llvm-project/archive/rustc/19.1-2024-09-17.tar.gz
-tar xzf rustc-llvm-19.1.tar.gz --strip-components 1 llvm-project-rustc-19.1-2024-09-17/compiler-rt
+curl -L -o rustc-llvm-20.1.tar.gz https://github.com/rust-lang/llvm-project/archive/rustc/20.1-2025-02-13.tar.gz
+tar xzf rustc-llvm-20.1.tar.gz --strip-components 1 llvm-project-rustc-20.1-2025-02-13/compiler-rt
 ```
 
 Local targets may also be tested with `./ci/run.sh [target]`.

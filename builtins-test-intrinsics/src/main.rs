@@ -626,13 +626,14 @@ fn run() {
 
     something_with_a_dtor(&|| assert_eq!(bb(1), 1));
 
-    extern "C" {
-        fn rust_begin_unwind(x: usize);
-    }
+    // FIXME(#802): This should be re-enabled once a workaround is found.
+    // extern "C" {
+    //     fn rust_begin_unwind(x: usize);
+    // }
 
-    unsafe {
-        rust_begin_unwind(0);
-    }
+    // unsafe {
+    //     rust_begin_unwind(0);
+    // }
 }
 
 fn something_with_a_dtor(f: &dyn Fn()) {
@@ -673,17 +674,17 @@ pub fn __aeabi_unwind_cpp_pr0() {}
 #[no_mangle]
 pub fn __aeabi_unwind_cpp_pr1() {}
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "cygwin")))]
 #[allow(non_snake_case)]
 #[no_mangle]
 pub fn _Unwind_Resume() {}
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "cygwin")))]
 #[lang = "eh_personality"]
 #[no_mangle]
 pub extern "C" fn eh_personality() {}
 
-#[cfg(all(windows, target_env = "gnu"))]
+#[cfg(any(all(windows, target_env = "gnu"), target_os = "cygwin"))]
 mod mingw_unwinding {
     #[no_mangle]
     pub fn rust_eh_personality() {}

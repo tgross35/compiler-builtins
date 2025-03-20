@@ -1,8 +1,8 @@
-use std::{collections::BTreeMap, env, path::PathBuf, sync::atomic::Ordering};
-
 mod configure;
 
-use configure::{configure_f16_f128, Target};
+use std::{collections::BTreeMap, env, path::PathBuf, sync::atomic::Ordering};
+
+use configure::{configure_aliases, configure_f16_f128, Target};
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
@@ -13,6 +13,7 @@ fn main() {
 
     configure_check_cfg();
     configure_f16_f128(&target);
+    configure_aliases(&target);
 
     configure_libm(&target);
 
@@ -69,20 +70,6 @@ fn main() {
             #[cfg(feature = "c")]
             c::compile(&llvm_target, &target);
         }
-    }
-
-    // To compile intrinsics.rs for thumb targets, where there is no libc
-    println!("cargo::rustc-check-cfg=cfg(thumb)");
-    if llvm_target[0].starts_with("thumb") {
-        println!("cargo:rustc-cfg=thumb")
-    }
-
-    // compiler-rt `cfg`s away some intrinsics for thumbv6m and thumbv8m.base because
-    // these targets do not have full Thumb-2 support but only original Thumb-1.
-    // We have to cfg our code accordingly.
-    println!("cargo::rustc-check-cfg=cfg(thumb_1)");
-    if llvm_target[0] == "thumbv6m" || llvm_target[0] == "thumbv8m.base" {
-        println!("cargo:rustc-cfg=thumb_1")
     }
 
     // Only emit the ARM Linux atomic emulation on pre-ARMv6 architectures. This
@@ -575,7 +562,7 @@ mod c {
                 ("__fe_raise_inexact", "fp_mode.c"),
             ]);
 
-            if target.os != "windows" {
+            if target.os != "windows" && target.os != "cygwin" {
                 sources.extend(&[("__multc3", "multc3.c")]);
             }
         }
@@ -608,13 +595,15 @@ mod c {
             sources.remove(&["__aeabi_cdcmp", "__aeabi_cfcmp"]);
         }
 
-        // Android uses emulated TLS so we need a runtime support function.
-        if target.os == "android" {
+        // Android and Cygwin uses emulated TLS so we need a runtime support function.
+        if target.os == "android" || target.os == "cygwin" {
             sources.extend(&[("__emutls_get_address", "emutls.c")]);
+        }
 
-            // Work around a bug in the NDK headers (fixed in
-            // https://r.android.com/2038949 which will be released in a future
-            // NDK version) by providing a definition of LONG_BIT.
+        // Work around a bug in the NDK headers (fixed in
+        // https://r.android.com/2038949 which will be released in a future
+        // NDK version) by providing a definition of LONG_BIT.
+        if target.os == "android" {
             cfg.define("LONG_BIT", "(8 * sizeof(long))");
         }
 
@@ -630,7 +619,10 @@ mod c {
         let root = match env::var_os("RUST_COMPILER_RT_ROOT") {
             Some(s) => PathBuf::from(s),
             None => {
-                panic!("RUST_COMPILER_RT_ROOT is not set. You may need to download compiler-rt.")
+                panic!(
+                    "RUST_COMPILER_RT_ROOT is not set. You may need to run \
+                    `ci/download-compiler-rt.sh`."
+                );
             }
         };
         if !root.exists() {

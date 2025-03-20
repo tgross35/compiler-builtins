@@ -3,7 +3,7 @@
 #![cfg_attr(f16_enabled, feature(f16))]
 
 use compiler_builtins::float::extend;
-use criterion::{criterion_main, Criterion};
+use criterion::{Criterion, criterion_main};
 use testcrate::float_bench;
 
 #[cfg(f16_enabled)]
@@ -18,6 +18,28 @@ float_bench! {
             let ret: f32;
             asm!(
                 "fcvt    {ret:s}, {a:h}",
+                a = in(vreg) a,
+                ret = lateout(vreg) ret,
+                options(nomem, nostack, pure),
+            );
+
+            ret
+        };
+    ],
+}
+
+#[cfg(f16_enabled)]
+float_bench! {
+    name: extend_f16_f64,
+    sig: (a: f16) -> f64,
+    crate_fn: extend::__extendhfdf2,
+    sys_fn: __extendhfdf2,
+    sys_available: not(feature = "no-sys-f16-f64-convert"),
+    asm: [
+        #[cfg(target_arch = "aarch64")] {
+            let ret: f64;
+            asm!(
+                "fcvt    {ret:d}, {a:h}",
                 a = in(vreg) a,
                 ret = lateout(vreg) ret,
                 options(nomem, nostack, pure),
@@ -93,6 +115,7 @@ pub fn float_extend() {
     #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
     {
         extend_f16_f32(&mut criterion);
+        extend_f16_f64(&mut criterion);
 
         #[cfg(f128_enabled)]
         extend_f16_f128(&mut criterion);

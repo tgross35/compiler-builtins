@@ -2,7 +2,7 @@
 #![cfg_attr(f16_enabled, feature(f16))]
 
 use compiler_builtins::float::trunc;
-use criterion::{criterion_main, Criterion};
+use criterion::{Criterion, criterion_main};
 use testcrate::float_bench;
 
 #[cfg(f16_enabled)]
@@ -33,7 +33,7 @@ float_bench! {
     sig: (a: f64) -> f16,
     crate_fn: trunc::__truncdfhf2,
     sys_fn: __truncdfhf2,
-    sys_available: not(feature = "no-sys-f16"),
+    sys_available: not(feature = "no-sys-f16-f64-convert"),
     asm: [
         #[cfg(target_arch = "aarch64")] {
             let ret: f16;

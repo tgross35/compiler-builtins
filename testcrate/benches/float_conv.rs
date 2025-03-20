@@ -2,7 +2,7 @@
 #![cfg_attr(f128_enabled, feature(f128))]
 
 use compiler_builtins::float::conv;
-use criterion::{criterion_main, Criterion};
+use criterion::{Criterion, criterion_main};
 use testcrate::float_bench;
 
 /* unsigned int -> float */
@@ -665,7 +665,7 @@ pub fn float_conv() {
     conv_f64_i64(&mut criterion);
     conv_f64_i128(&mut criterion);
 
-    #[cfg(all(f128_enabled))]
+    #[cfg(f128_enabled)]
     // FIXME: ppc64le has a sporadic overflow panic in the crate functions
     // <https://github.com/rust-lang/compiler-builtins/issues/617#issuecomment-2125914639>
     #[cfg(not(all(target_arch = "powerpc64", target_endian = "little")))]

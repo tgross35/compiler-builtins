@@ -2,23 +2,12 @@ use core::ops;
 
 use crate::int::{DInt, Int, MinInt};
 
-pub mod add;
-pub mod cmp;
-pub mod conv;
-pub mod div;
-pub mod extend;
-pub mod mul;
-pub mod pow;
-pub mod sub;
-pub mod trunc;
-
 /// Wrapper to extract the integer type half of the float's size
-pub(crate) type HalfRep<F> = <<F as Float>::Int as DInt>::H;
+pub type HalfRep<F> = <<F as Float>::Int as DInt>::H;
 
-public_test_dep! {
 /// Trait for some basic operations on floats
 #[allow(dead_code)]
-pub(crate) trait Float:
+pub trait Float:
     Copy
     + core::fmt::Debug
     + PartialEq
@@ -102,7 +91,7 @@ pub(crate) trait Float:
     fn from_parts(negative: bool, exponent: Self::Int, significand: Self::Int) -> Self;
 
     fn abs(self) -> Self {
-        let abs_mask = !Self::SIGN_MASK ;
+        let abs_mask = !Self::SIGN_MASK;
         Self::from_bits(self.to_bits() & abs_mask)
     }
 
@@ -111,7 +100,6 @@ pub(crate) trait Float:
 
     /// Returns if `self` is subnormal
     fn is_subnormal(self) -> bool;
-}
 }
 
 macro_rules! float_impl {
