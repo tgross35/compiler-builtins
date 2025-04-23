@@ -116,11 +116,20 @@ use self::k_sin::k_sin;
 use self::k_sinf::k_sinf;
 use self::k_tan::k_tan;
 use self::k_tanf::k_tanf;
-use self::rem_pio2::rem_pio2;
-use self::rem_pio2_large::rem_pio2_large;
-use self::rem_pio2f::rem_pio2f;
 #[allow(unused_imports)]
 use self::support::{CastFrom, CastInto, DFloat, DInt, Float, HFloat, HInt, Int, IntTy, MinInt};
+
+cfg_if! {
+    if #[cfg(feature = "unstable-public-internals")] {
+        pub use self::rem_pio2::rem_pio2;
+        pub use self::rem_pio2_large::rem_pio2_large;
+        pub use self::rem_pio2f::rem_pio2f;
+    } else {
+        use self::rem_pio2::rem_pio2;
+        use self::rem_pio2_large::rem_pio2_large;
+        use self::rem_pio2f::rem_pio2f;
+    }
+}
 
 // Public modules
 mod acos;

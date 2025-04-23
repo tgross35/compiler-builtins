@@ -269,6 +269,7 @@ pub fn get_domain<F: Float, I: Int>(
         BaseName::Modf => &EitherPrim::UNBOUNDED1[..],
         BaseName::Nextafter => &EitherPrim::UNBOUNDED2[..],
         BaseName::Pow => &EitherPrim::UNBOUNDED2[..],
+        BaseName::RemPio2 => &EitherPrim::UNBOUNDED1[..],
         BaseName::Remainder => &EitherPrim::UNBOUNDED2[..],
         BaseName::Remquo => &EitherPrim::UNBOUNDED2[..],
         BaseName::Rint => &EitherPrim::UNBOUNDED1[..],

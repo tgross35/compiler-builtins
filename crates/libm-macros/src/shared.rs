@@ -84,6 +84,17 @@ const ALL_OPERATIONS_NESTED: &[NestedOp] = &[
         public: true,
     },
     NestedOp {
+        // `(f32) -> f32`, nonpublic
+        float_ty: FloatTy::F32,
+        rust_sig: Signature {
+            args: &[Ty::F32],
+            returns: &[Ty::I32, Ty::F64],
+        },
+        c_sig: None,
+        fn_list: &["rem_pio2f"],
+        public: false,
+    },
+    NestedOp {
         // `(f64) -> f64`
         float_ty: FloatTy::F64,
         rust_sig: Signature {
@@ -131,6 +142,17 @@ const ALL_OPERATIONS_NESTED: &[NestedOp] = &[
             "y1",
         ],
         public: true,
+    },
+    NestedOp {
+        // `(f64) -> f64`, nonpublic
+        float_ty: FloatTy::F64,
+        rust_sig: Signature {
+            args: &[Ty::F64],
+            returns: &[Ty::I32, Ty::F64, Ty::F64],
+        },
+        c_sig: None,
+        fn_list: &["rem_pio2"],
+        public: false,
     },
     NestedOp {
         // `fn(f128) -> f128`

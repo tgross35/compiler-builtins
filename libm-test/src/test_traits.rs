@@ -447,7 +447,37 @@ macro_rules! impl_tuples {
 
 impl_tuples!(
     (f32, i32);
+    (i32, f32);
     (f64, i32);
+    (i32, f64);
     (f32, f32);
     (f64, f64);
 );
+
+impl<Input> CheckOutput<Input> for (i32, f64, f64)
+where
+    Input: Hex + fmt::Debug,
+    SpecialCase: MaybeOverride<Input>,
+{
+    fn validate<'a>(self, expected: Self, input: Input, ctx: &CheckCtx) -> TestResult {
+        self.0
+            .validate(expected.0, input, ctx)
+            .and_then(|()| self.1.validate(expected.1, input, ctx))
+            .and_then(|()| self.2.validate(expected.2, input, ctx))
+            .with_context(|| {
+                format!(
+                    "full context:\
+                            \n    input:    {input:?} {ibits}\
+                            \n    as hex:   {ihex}\
+                            \n    as bits:  {ibits}\
+                            \n    expected: {expected:?} {expbits}\
+                            \n    actual:   {self:?} {actbits}\
+                            ",
+                    ihex = input.hexf(),
+                    ibits = input.hex(),
+                    expbits = expected.hex(),
+                    actbits = self.hex(),
+                )
+            })
+    }
+}

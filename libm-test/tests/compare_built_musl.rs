@@ -84,6 +84,8 @@ libm_macros::for_each_function! {
         jnf,
         ldexp,
         ldexpf,
+        rem_pio2,
+        rem_pio2f,
         scalbn,
         scalbnf,
         yn,

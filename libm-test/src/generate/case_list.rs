@@ -595,6 +595,14 @@ fn remainderf_cases() -> Vec<TestCase<op::remainderf::Routine>> {
     vec![]
 }
 
+fn rem_pio2_cases() -> Vec<TestCase<op::rem_pio2::Routine>> {
+    vec![]
+}
+
+fn rem_pio2f_cases() -> Vec<TestCase<op::rem_pio2f::Routine>> {
+    vec![]
+}
+
 fn remquo_cases() -> Vec<TestCase<op::remquo::Routine>> {
     vec![]
 }

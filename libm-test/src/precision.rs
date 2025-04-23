@@ -37,6 +37,7 @@ pub fn default_ulp(ctx: &CheckCtx) -> u32 {
         | Bn::Ldexp
         | Bn::Modf
         | Bn::Nextafter
+        | Bn::RemPio2
         | Bn::Remainder
         | Bn::Remquo
         | Bn::Rint

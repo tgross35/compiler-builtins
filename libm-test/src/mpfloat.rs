@@ -178,6 +178,8 @@ libm_macros::for_each_function! {
         nextafterf,
         pow,
         powf,remquo,
+        rem_pio2,
+        rem_pio2f,
         remquof,
         rint,
         rintf,
@@ -545,7 +547,8 @@ impl_op_for_ty_all!(f64, "");
 #[cfg(f128_enabled)]
 impl_op_for_ty_all!(f128, "f128");
 
-// `lgamma_r` is not a simple suffix so we can't use the above macro.
+/*  `lgamma_r` is not a simple suffix so we can't use the above macro. */
+
 impl MpOp for crate::op::lgamma_r::Routine {
     type MpTy = MpFloat;
 
@@ -573,6 +576,44 @@ impl MpOp for crate::op::lgammaf_r::Routine {
         let (sign, ord) = this.ln_abs_gamma_round(Nearest);
         let ret = prep_retval::<Self::FTy>(this, ord);
         (ret, sign as i32)
+    }
+}
+
+/* More custom implementations */
+
+impl MpOp for crate::op::rem_pio2f::Routine {
+    type MpTy = (MpFloat, MpFloat);
+
+    fn new_mp() -> Self::MpTy {
+        let v1 = new_mpfloat::<f64>();
+        let mut v2 = new_mpfloat::<f64>();
+        v2.assign(core::f64::consts::FRAC_PI_2);
+        (v1, v2)
+    }
+
+    fn run(this: &mut Self::MpTy, input: Self::RustArgs) -> Self::RustRet {
+        this.0.assign(input.0);
+        let (ord, q) = this.0.remainder_quo31_round(&this.1, Nearest);
+        (q, prep_retval::<f64>(&mut this.0, ord))
+    }
+}
+
+impl MpOp for crate::op::rem_pio2::Routine {
+    type MpTy = (MpFloat, MpFloat);
+
+    fn new_mp() -> Self::MpTy {
+        todo!()
+        // let v1 = new_mpfloat::<f64>();
+        // let mut v2 = new_mpfloat::<f64>();
+        // v2.assign(core::f64::consts::FRAC_PI_2);
+        // (v1, v2)
+    }
+
+    fn run(this: &mut Self::MpTy, input: Self::RustArgs) -> Self::RustRet {
+        // this.0.assign(input.0);
+        // let (ord, q) = this.0.remainder_quo31_round(&this.1, Nearest);
+        // (q, prep_retval::<f64>(&mut this.0, ord))
+        todo!()
     }
 }
 
