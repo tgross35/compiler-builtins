@@ -21,7 +21,10 @@
 #![allow(clippy::needless_return)]
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::zero_divided_by_zero)]
+// Prep for edition 2024
+#![warn(rust_2024_compatibility)]
 #![forbid(unsafe_op_in_unsafe_fn)]
+#![allow(edition_2024_expr_fragment_specifier)]
 
 mod libm_helper;
 mod math;
