@@ -185,7 +185,7 @@ libm_helper! {
     }
 }
 
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 libm_helper! {
     f16,
     funcs: {
@@ -213,7 +213,7 @@ libm_helper! {
     }
 }
 
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 libm_helper! {
     f128,
     funcs: {

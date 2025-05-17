@@ -89,7 +89,7 @@ macro_rules! select_implementation {
 
 /// Construct a 16-bit float from hex float representation (C-style), guaranteed to
 /// evaluate at compile time.
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(feature = "unstable-public-internals", macro_export)]
 #[allow(unused_macros)]
 macro_rules! hf16 {
@@ -123,7 +123,7 @@ macro_rules! hf64 {
 
 /// Construct a 128-bit float from hex float representation (C-style), guaranteed to
 /// evaluate at compile time.
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[allow(unused_macros)]
 #[cfg_attr(feature = "unstable-public-internals", macro_export)]
 macro_rules! hf128 {

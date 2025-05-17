@@ -1,7 +1,7 @@
 /// Return the lesser of two arguments or, if either argument is NaN, NaN.
 ///
 /// This coincides with IEEE 754-2019 `minimumNumber`. The result orders -0.0 < 0.0.
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fminimum_numf16(x: f16, y: f16) -> f16 {
     super::generic::fminimum_num(x, y)
@@ -26,7 +26,7 @@ pub fn fminimum_num(x: f64, y: f64) -> f64 {
 /// Return the lesser of two arguments or, if either argument is NaN, NaN.
 ///
 /// This coincides with IEEE 754-2019 `minimumNumber`. The result orders -0.0 < 0.0.
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fminimum_numf128(x: f128, y: f128) -> f128 {
     super::generic::fminimum_num(x, y)
@@ -35,7 +35,7 @@ pub fn fminimum_numf128(x: f128, y: f128) -> f128 {
 /// Return the greater of two arguments or, if either argument is NaN, NaN.
 ///
 /// This coincides with IEEE 754-2019 `maximumNumber`. The result orders -0.0 < 0.0.
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fmaximum_numf16(x: f16, y: f16) -> f16 {
     super::generic::fmaximum_num(x, y)
@@ -60,7 +60,7 @@ pub fn fmaximum_num(x: f64, y: f64) -> f64 {
 /// Return the greater of two arguments or, if either argument is NaN, NaN.
 ///
 /// This coincides with IEEE 754-2019 `maximumNumber`. The result orders -0.0 < 0.0.
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fmaximum_numf128(x: f128, y: f128) -> f128 {
     super::generic::fmaximum_num(x, y)
@@ -95,7 +95,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn fminimum_num_spec_tests_f16() {
         fminimum_num_spec_test::<f16>(fminimum_numf16);
     }
@@ -111,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn fminimum_num_spec_tests_f128() {
         fminimum_num_spec_test::<f128>(fminimum_numf128);
     }
@@ -140,7 +140,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn fmaximum_num_spec_tests_f16() {
         fmaximum_num_spec_test::<f16>(fmaximum_numf16);
     }
@@ -156,7 +156,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn fmaximum_num_spec_tests_f128() {
         fmaximum_num_spec_test::<f128>(fmaximum_numf128);
     }

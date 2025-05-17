@@ -60,7 +60,11 @@ pub fn rintf(mut x: f32) -> f32 {
     x
 }
 
-#[cfg(all(f16_enabled, target_feature = "fp16"))]
+#[cfg(all(
+    feature = "unstable-float",
+    target_has_reliable_f16,
+    target_feature = "fp16"
+))]
 pub fn rintf16(mut x: f16) -> f16 {
     // SAFETY: `frintn` is available for `f16` with `fp16` (implies `neon`) and has no side effects.
     //
@@ -100,7 +104,11 @@ pub fn sqrtf(mut x: f32) -> f32 {
     x
 }
 
-#[cfg(all(f16_enabled, target_feature = "fp16"))]
+#[cfg(all(
+    feature = "unstable-float",
+    target_has_reliable_f16,
+    target_feature = "fp16"
+))]
 pub fn sqrtf16(mut x: f16) -> f16 {
     // SAFETY: `fsqrt` is available for `f16` with `fp16` (implies `neon`) and has no
     // side effects.

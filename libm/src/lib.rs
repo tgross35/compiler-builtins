@@ -1,13 +1,21 @@
 //! libm in pure Rust
 #![no_std]
-#![cfg_attr(intrinsics_enabled, allow(internal_features))]
+// #![feature(cfg_target_has_reliable_f16_f128)]
 #![cfg_attr(intrinsics_enabled, feature(core_intrinsics))]
 #![cfg_attr(
     all(intrinsics_enabled, target_family = "wasm"),
     feature(wasm_numeric_instr)
 )]
-#![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(
+    any(intrinsics_enabled, feature = "unstable-float"),
+    allow(internal_features)
+)]
+#![cfg_attr(feature = "unstable-float", feature(cfg_targest_has_reliable_f16_f128))]
+#![cfg_attr(all(feature = "unstable-float", target_has_reliable_f16), feature(f16))]
+#![cfg_attr(
+    all(feature = "unstable-float", target_has_reliable_f128),
+    feature(f128)
+)]
 #![allow(clippy::assign_op_pattern)]
 #![allow(clippy::deprecated_cfg_attr)]
 #![allow(clippy::eq_op)]

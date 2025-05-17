@@ -296,7 +296,7 @@ macro_rules! float_impl {
     };
 }
 
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 float_impl!(
     f16,
     u16,
@@ -330,7 +330,7 @@ float_impl!(
     fma,
     fmaf64
 );
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 float_impl!(
     f128,
     u128,
@@ -420,15 +420,15 @@ macro_rules! impl_h_float {
 }
 
 impl_d_float!(f32 f64);
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 impl_d_float!(f16 f32);
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 impl_d_float!(f64 f128);
 
 impl_h_float!(f32 f64);
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 impl_h_float!(f16 f32);
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 impl_h_float!(f64 f128);
 
 #[cfg(test)]
@@ -436,7 +436,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn check_f16() {
         // Constants
         assert_eq!(f16::EXP_SAT, 0b11111);
@@ -523,7 +523,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn check_f128() {
         // Constants
         assert_eq!(f128::EXP_SAT, 0b111111111111111);

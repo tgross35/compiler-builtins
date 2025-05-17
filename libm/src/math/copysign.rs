@@ -2,7 +2,7 @@
 ///
 /// Constructs a number with the magnitude (absolute value) of its
 /// first argument, `x`, and the sign of its second argument, `y`.
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn copysignf16(x: f16, y: f16) -> f16 {
     super::generic::copysign(x, y)
@@ -30,7 +30,7 @@ pub fn copysign(x: f64, y: f64) -> f64 {
 ///
 /// Constructs a number with the magnitude (absolute value) of its
 /// first argument, `x`, and the sign of its second argument, `y`.
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn copysignf128(x: f128, y: f128) -> f128 {
     super::generic::copysign(x, y)
@@ -65,7 +65,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn spec_tests_f16() {
         spec_test::<f16>(copysignf16);
     }
@@ -81,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn spec_tests_f128() {
         spec_test::<f128>(copysignf128);
     }

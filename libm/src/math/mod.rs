@@ -313,7 +313,7 @@ pub use self::tgammaf::tgammaf;
 pub use self::trunc::{trunc, truncf};
 
 cfg_if! {
-    if #[cfg(f16_enabled)] {
+    if #[cfg(all(feature = "unstable-float", target_has_reliable_f16))] {
         // verify-sorted-start
         pub use self::ceil::ceilf16;
         pub use self::copysign::copysignf16;
@@ -339,7 +339,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(f128_enabled)] {
+    if #[cfg(all(feature = "unstable-float", target_has_reliable_f128))] {
         // verify-sorted-start
         pub use self::ceil::ceilf128;
         pub use self::copysign::copysignf128;

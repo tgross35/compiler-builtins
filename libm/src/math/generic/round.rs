@@ -14,14 +14,14 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn zeroes_f16() {
         assert_biteq!(round(0.0_f16), 0.0_f16);
         assert_biteq!(round(-0.0_f16), -0.0_f16);
     }
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn sanity_check_f16() {
         assert_eq!(round(-1.0_f16), -1.0);
         assert_eq!(round(2.8_f16), 3.0);
@@ -64,14 +64,14 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn zeroes_f128() {
         assert_biteq!(round(0.0_f128), 0.0_f128);
         assert_biteq!(round(-0.0_f128), -0.0_f128);
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn sanity_check_f128() {
         assert_eq!(round(-1.0_f128), -1.0);
         assert_eq!(round(2.8_f128), 3.0);

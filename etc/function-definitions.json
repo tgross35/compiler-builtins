@@ -113,20 +113,6 @@
         ],
         "type": "f32"
     },
-    "ceilf128": {
-        "sources": [
-            "libm/src/math/ceil.rs",
-            "libm/src/math/generic/ceil.rs"
-        ],
-        "type": "f128"
-    },
-    "ceilf16": {
-        "sources": [
-            "libm/src/math/ceil.rs",
-            "libm/src/math/generic/ceil.rs"
-        ],
-        "type": "f16"
-    },
     "copysign": {
         "sources": [
             "libm/src/math/copysign.rs",
@@ -140,20 +126,6 @@
             "libm/src/math/generic/copysign.rs"
         ],
         "type": "f32"
-    },
-    "copysignf128": {
-        "sources": [
-            "libm/src/math/copysign.rs",
-            "libm/src/math/generic/copysign.rs"
-        ],
-        "type": "f128"
-    },
-    "copysignf16": {
-        "sources": [
-            "libm/src/math/copysign.rs",
-            "libm/src/math/generic/copysign.rs"
-        ],
-        "type": "f16"
     },
     "cos": {
         "sources": [
@@ -267,20 +239,6 @@
         ],
         "type": "f32"
     },
-    "fabsf128": {
-        "sources": [
-            "libm/src/math/fabs.rs",
-            "libm/src/math/generic/fabs.rs"
-        ],
-        "type": "f128"
-    },
-    "fabsf16": {
-        "sources": [
-            "libm/src/math/fabs.rs",
-            "libm/src/math/generic/fabs.rs"
-        ],
-        "type": "f16"
-    },
     "fdim": {
         "sources": [
             "libm/src/math/fdim.rs",
@@ -294,20 +252,6 @@
             "libm/src/math/generic/fdim.rs"
         ],
         "type": "f32"
-    },
-    "fdimf128": {
-        "sources": [
-            "libm/src/math/fdim.rs",
-            "libm/src/math/generic/fdim.rs"
-        ],
-        "type": "f128"
-    },
-    "fdimf16": {
-        "sources": [
-            "libm/src/math/fdim.rs",
-            "libm/src/math/generic/fdim.rs"
-        ],
-        "type": "f16"
     },
     "floor": {
         "sources": [
@@ -326,20 +270,6 @@
         ],
         "type": "f32"
     },
-    "floorf128": {
-        "sources": [
-            "libm/src/math/floor.rs",
-            "libm/src/math/generic/floor.rs"
-        ],
-        "type": "f128"
-    },
-    "floorf16": {
-        "sources": [
-            "libm/src/math/floor.rs",
-            "libm/src/math/generic/floor.rs"
-        ],
-        "type": "f16"
-    },
     "fma": {
         "sources": [
             "libm/src/math/arch/aarch64.rs",
@@ -356,12 +286,6 @@
         ],
         "type": "f32"
     },
-    "fmaf128": {
-        "sources": [
-            "libm/src/math/fma.rs"
-        ],
-        "type": "f128"
-    },
     "fmax": {
         "sources": [
             "libm/src/math/fmin_fmax.rs",
@@ -375,20 +299,6 @@
             "libm/src/math/generic/fmax.rs"
         ],
         "type": "f32"
-    },
-    "fmaxf128": {
-        "sources": [
-            "libm/src/math/fmin_fmax.rs",
-            "libm/src/math/generic/fmax.rs"
-        ],
-        "type": "f128"
-    },
-    "fmaxf16": {
-        "sources": [
-            "libm/src/math/fmin_fmax.rs",
-            "libm/src/math/generic/fmax.rs"
-        ],
-        "type": "f16"
     },
     "fmaximum": {
         "sources": [
@@ -411,40 +321,12 @@
         ],
         "type": "f32"
     },
-    "fmaximum_numf128": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum_num.rs",
-            "libm/src/math/generic/fmaximum_num.rs"
-        ],
-        "type": "f128"
-    },
-    "fmaximum_numf16": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum_num.rs",
-            "libm/src/math/generic/fmaximum_num.rs"
-        ],
-        "type": "f16"
-    },
     "fmaximumf": {
         "sources": [
             "libm/src/math/fminimum_fmaximum.rs",
             "libm/src/math/generic/fmaximum.rs"
         ],
         "type": "f32"
-    },
-    "fmaximumf128": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum.rs",
-            "libm/src/math/generic/fmaximum.rs"
-        ],
-        "type": "f128"
-    },
-    "fmaximumf16": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum.rs",
-            "libm/src/math/generic/fmaximum.rs"
-        ],
-        "type": "f16"
     },
     "fmin": {
         "sources": [
@@ -459,20 +341,6 @@
             "libm/src/math/generic/fmin.rs"
         ],
         "type": "f32"
-    },
-    "fminf128": {
-        "sources": [
-            "libm/src/math/fmin_fmax.rs",
-            "libm/src/math/generic/fmin.rs"
-        ],
-        "type": "f128"
-    },
-    "fminf16": {
-        "sources": [
-            "libm/src/math/fmin_fmax.rs",
-            "libm/src/math/generic/fmin.rs"
-        ],
-        "type": "f16"
     },
     "fminimum": {
         "sources": [
@@ -495,40 +363,12 @@
         ],
         "type": "f32"
     },
-    "fminimum_numf128": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum_num.rs",
-            "libm/src/math/generic/fminimum_num.rs"
-        ],
-        "type": "f128"
-    },
-    "fminimum_numf16": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum_num.rs",
-            "libm/src/math/generic/fminimum_num.rs"
-        ],
-        "type": "f16"
-    },
     "fminimumf": {
         "sources": [
             "libm/src/math/fminimum_fmaximum.rs",
             "libm/src/math/generic/fminimum.rs"
         ],
         "type": "f32"
-    },
-    "fminimumf128": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum.rs",
-            "libm/src/math/generic/fminimum.rs"
-        ],
-        "type": "f128"
-    },
-    "fminimumf16": {
-        "sources": [
-            "libm/src/math/fminimum_fmaximum.rs",
-            "libm/src/math/generic/fminimum.rs"
-        ],
-        "type": "f16"
     },
     "fmod": {
         "sources": [
@@ -543,20 +383,6 @@
             "libm/src/math/generic/fmod.rs"
         ],
         "type": "f32"
-    },
-    "fmodf128": {
-        "sources": [
-            "libm/src/math/fmod.rs",
-            "libm/src/math/generic/fmod.rs"
-        ],
-        "type": "f128"
-    },
-    "fmodf16": {
-        "sources": [
-            "libm/src/math/fmod.rs",
-            "libm/src/math/generic/fmod.rs"
-        ],
-        "type": "f16"
     },
     "frexp": {
         "sources": [
@@ -641,18 +467,6 @@
             "libm/src/math/ldexp.rs"
         ],
         "type": "f32"
-    },
-    "ldexpf128": {
-        "sources": [
-            "libm/src/math/ldexp.rs"
-        ],
-        "type": "f128"
-    },
-    "ldexpf16": {
-        "sources": [
-            "libm/src/math/ldexp.rs"
-        ],
-        "type": "f16"
     },
     "lgamma": {
         "sources": [
@@ -802,19 +616,6 @@
         ],
         "type": "f32"
     },
-    "rintf128": {
-        "sources": [
-            "libm/src/math/rint.rs"
-        ],
-        "type": "f128"
-    },
-    "rintf16": {
-        "sources": [
-            "libm/src/math/arch/aarch64.rs",
-            "libm/src/math/rint.rs"
-        ],
-        "type": "f16"
-    },
     "round": {
         "sources": [
             "libm/src/math/generic/round.rs",
@@ -834,38 +635,12 @@
         ],
         "type": "f32"
     },
-    "roundevenf128": {
-        "sources": [
-            "libm/src/math/roundeven.rs"
-        ],
-        "type": "f128"
-    },
-    "roundevenf16": {
-        "sources": [
-            "libm/src/math/roundeven.rs"
-        ],
-        "type": "f16"
-    },
     "roundf": {
         "sources": [
             "libm/src/math/generic/round.rs",
             "libm/src/math/round.rs"
         ],
         "type": "f32"
-    },
-    "roundf128": {
-        "sources": [
-            "libm/src/math/generic/round.rs",
-            "libm/src/math/round.rs"
-        ],
-        "type": "f128"
-    },
-    "roundf16": {
-        "sources": [
-            "libm/src/math/generic/round.rs",
-            "libm/src/math/round.rs"
-        ],
-        "type": "f16"
     },
     "scalbn": {
         "sources": [
@@ -880,20 +655,6 @@
             "libm/src/math/scalbn.rs"
         ],
         "type": "f32"
-    },
-    "scalbnf128": {
-        "sources": [
-            "libm/src/math/generic/scalbn.rs",
-            "libm/src/math/scalbn.rs"
-        ],
-        "type": "f128"
-    },
-    "scalbnf16": {
-        "sources": [
-            "libm/src/math/generic/scalbn.rs",
-            "libm/src/math/scalbn.rs"
-        ],
-        "type": "f16"
     },
     "sin": {
         "sources": [
@@ -951,21 +712,6 @@
         ],
         "type": "f32"
     },
-    "sqrtf128": {
-        "sources": [
-            "libm/src/math/generic/sqrt.rs",
-            "libm/src/math/sqrt.rs"
-        ],
-        "type": "f128"
-    },
-    "sqrtf16": {
-        "sources": [
-            "libm/src/math/arch/aarch64.rs",
-            "libm/src/math/generic/sqrt.rs",
-            "libm/src/math/sqrt.rs"
-        ],
-        "type": "f16"
-    },
     "tan": {
         "sources": [
             "libm/src/math/tan.rs"
@@ -1017,20 +763,6 @@
             "libm/src/math/trunc.rs"
         ],
         "type": "f32"
-    },
-    "truncf128": {
-        "sources": [
-            "libm/src/math/generic/trunc.rs",
-            "libm/src/math/trunc.rs"
-        ],
-        "type": "f128"
-    },
-    "truncf16": {
-        "sources": [
-            "libm/src/math/generic/trunc.rs",
-            "libm/src/math/trunc.rs"
-        ],
-        "type": "f16"
     },
     "y0": {
         "sources": [

@@ -1,4 +1,4 @@
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn ldexpf16(x: f16, n: i32) -> f16 {
     super::scalbnf16(x, n)
@@ -14,7 +14,7 @@ pub fn ldexp(x: f64, n: i32) -> f64 {
     super::scalbn(x, n)
 }
 
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn ldexpf128(x: f128, n: i32) -> f128 {
     super::scalbnf128(x, n)

@@ -32,7 +32,7 @@ cfg_if! {
             sqrtf,
         };
 
-        #[cfg(all(f16_enabled, target_feature = "fp16"))]
+        #[cfg(all(feature = "unstable-float", target_has_reliable_f16, target_feature = "fp16"))]
         pub use aarch64::{
             rintf16,
             sqrtf16,

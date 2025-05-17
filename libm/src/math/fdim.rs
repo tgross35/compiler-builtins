@@ -6,7 +6,7 @@
 /// * NAN   if either argument is NAN.
 ///
 /// A range error may occur.
-#[cfg(f16_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fdimf16(x: f16, y: f16) -> f16 {
     super::generic::fdim(x, y)
@@ -46,7 +46,7 @@ pub fn fdim(x: f64, y: f64) -> f64 {
 /// * NAN   if either argument is NAN.
 ///
 /// A range error may occur.
-#[cfg(f128_enabled)]
+#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fdimf128(x: f128, y: f128) -> f128 {
     super::generic::fdim(x, y)

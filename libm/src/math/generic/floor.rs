@@ -99,7 +99,7 @@ mod tests {
     /* Skipping f16 / f128 "sanity_check"s and spec cases due to rejected literal lexing at MSRV */
 
     #[test]
-    #[cfg(f16_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
     fn spec_tests_f16() {
         let cases = [];
         spec_test::<f16>(&cases);
@@ -149,7 +149,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
     fn spec_tests_f128() {
         let cases = [];
         spec_test::<f128>(&cases);
