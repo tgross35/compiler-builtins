@@ -310,7 +310,8 @@ pub trait SqrtHelper: Float {
     const FINAL_ROUNDS: u32;
 }
 
-#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f16)]
 impl SqrtHelper for f16 {
     type ISet1 = u16; // unused
     type ISet2 = u16; // unused
@@ -333,7 +334,8 @@ impl SqrtHelper for f64 {
     const FINAL_ROUNDS: u32 = 2;
 }
 
-#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f128)]
 impl SqrtHelper for f128 {
     type ISet1 = u32;
     type ISet2 = u64;
@@ -401,20 +403,23 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn sanity_check_f16() {
         assert_biteq!(sqrt(100.0f16), 10.0);
         assert_biteq!(sqrt(4.0f16), 2.0);
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn spec_tests_f16() {
         spec_test::<f16>();
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     #[allow(clippy::approx_constant)]
     fn conformance_tests_f16() {
         let cases = [
@@ -499,20 +504,23 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn sanity_check_f128() {
         assert_biteq!(sqrt(100.0f128), 10.0);
         assert_biteq!(sqrt(4.0f128), 2.0);
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn spec_tests_f128() {
         spec_test::<f128>();
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     #[allow(clippy::approx_constant)]
     fn conformance_tests_f128() {
         let cases = [

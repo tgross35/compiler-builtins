@@ -2,7 +2,8 @@
 ///
 /// Calculates the absolute value (magnitude) of the argument `x`,
 /// by direct manipulation of the bit representation of `x`.
-#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f16)]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fabsf16(x: f16) -> f16 {
     super::generic::fabs(x)
@@ -42,7 +43,8 @@ pub fn fabs(x: f64) -> f64 {
 ///
 /// Calculates the absolute value (magnitude) of the argument `x`,
 /// by direct manipulation of the bit representation of `x`.
-#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f128)]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fabsf128(x: f128) -> f128 {
     super::generic::fabs(x)
@@ -67,14 +69,16 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn sanity_check_f16() {
         assert_eq!(fabsf16(-1.0f16), 1.0);
         assert_eq!(fabsf16(2.8f16), 2.8);
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn spec_tests_f16() {
         spec_test::<f16>(fabsf16);
     }
@@ -102,14 +106,16 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn sanity_check_f128() {
         assert_eq!(fabsf128(-1.0f128), 1.0);
         assert_eq!(fabsf128(2.8f128), 2.8);
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn spec_tests_f128() {
         spec_test::<f128>(fabsf128);
     }

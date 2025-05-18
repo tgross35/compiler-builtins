@@ -19,7 +19,7 @@ macro_rules! libm_intrinsics {
 /// This set of functions is well tested in `libm` and known to provide similar performance to
 /// system `libm`, as well as the same or better accuracy.
 pub mod full_availability {
-    #[cfg(f16_enabled)]
+    #[cfg(target_has_reliable_f16)]
     libm_intrinsics! {
         fn ceilf16(x: f16) -> f16;
         fn copysignf16(x: f16, y: f16) -> f16;
@@ -87,7 +87,7 @@ pub mod full_availability {
         fn roundevenf(x: f32) -> f32;
     }
 
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     libm_intrinsics! {
         fn ceilf128(x: f128) -> f128;
         fn copysignf128(x: f128, y: f128) -> f128;

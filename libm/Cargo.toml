@@ -52,5 +52,4 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_has_reliable_f16_math)',
     'cfg(target_has_reliable_f128)',
     'cfg(target_has_reliable_f128_math)',
-
 ] }

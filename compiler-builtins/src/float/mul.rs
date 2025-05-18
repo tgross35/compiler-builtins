@@ -193,7 +193,7 @@ intrinsics! {
     }
 
     #[ppc_alias = __mulkf3]
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     pub extern "C" fn __multf3(a: f128, b: f128) -> f128 {
         mul(a, b)
     }

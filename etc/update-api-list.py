@@ -70,6 +70,7 @@ class Crate:
                 "--edition=2021",
                 "--document-private-items",
                 "--output-format=json",
+                '--cfg=feature="unstable-float"',
                 "--cfg=target_has_reliable_f16",
                 "--cfg=target_has_reliable_f128",
                 "-Zunstable-options",

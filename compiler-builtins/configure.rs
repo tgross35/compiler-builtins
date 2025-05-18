@@ -74,63 +74,10 @@ pub fn configure_aliases(target: &Target) {
     if target.triple_split[0] == "thumbv6m" || target.triple_split[0] == "thumbv8m.base" {
         println!("cargo:rustc-cfg=thumb_1")
     }
-}
-
-/// Configure whether or not `f16` and `f128` support should be enabled.
-pub fn configure_f16_f128(target: &Target) {
-    // Set whether or not `f16` and `f128` are supported at a basic level by LLVM. This only means
-    // that the backend will not crash when using these types and generates code that can be called
-    // without crashing (no infinite recursion). This does not mean that the platform doesn't have
-    // ABI or other bugs.
-    //
-    // We do this here rather than in `rust-lang/rust` because configuring via cargo features is
-    // not straightforward.
-    //
-    // Original source of this list:
-    // <https://github.com/rust-lang/compiler-builtins/pull/652#issuecomment-2266151350>
-    let f16_enabled = match target.arch.as_str() {
-        // Unsupported <https://github.com/llvm/llvm-project/issues/94434>
-        "arm64ec" => false,
-        // Selection failure <https://github.com/llvm/llvm-project/issues/50374>
-        "s390x" => false,
-        // Infinite recursion <https://github.com/llvm/llvm-project/issues/97981>
-        "csky" => false,
-        "hexagon" => false,
-        "powerpc" | "powerpc64" => false,
-        "sparc" | "sparc64" => false,
-        "wasm32" | "wasm64" => false,
-        // Most everything else works as of LLVM 19
-        _ => true,
-    };
-
-    let f128_enabled = match target.arch.as_str() {
-        // Unsupported (libcall is not supported) <https://github.com/llvm/llvm-project/issues/121122>
-        "amdgpu" => false,
-        // Unsupported <https://github.com/llvm/llvm-project/issues/94434>
-        "arm64ec" => false,
-        // FIXME(llvm20): fixed by <https://github.com/llvm/llvm-project/pull/117525>
-        "mips64" | "mips64r6" => false,
-        // Selection failure <https://github.com/llvm/llvm-project/issues/95471>
-        "nvptx64" => false,
-        // Selection failure <https://github.com/llvm/llvm-project/issues/101545>
-        "powerpc64" if &target.os == "aix" => false,
-        // Selection failure <https://github.com/llvm/llvm-project/issues/41838>
-        "sparc" => false,
-        // Most everything else works as of LLVM 19
-        _ => true,
-    };
 
     // If the feature is set, disable these types.
-    let disable_both = env::var_os("CARGO_FEATURE_NO_F16_F128").is_some();
-
-    println!("cargo::rustc-check-cfg=cfg(f16_enabled)");
-    println!("cargo::rustc-check-cfg=cfg(f128_enabled)");
-
-    if f16_enabled && !disable_both {
-        println!("cargo::rustc-cfg=f16_enabled");
-    }
-
-    if f128_enabled && !disable_both {
-        println!("cargo::rustc-cfg=f128_enabled");
+    println!("cargo:rustc-check-cfg=cfg(unstable_float)");
+    if !env::var_os("CARGO_FEATURE_NO_F16_F128").is_some() {
+        println!("cargo:rustc-cfg=unstable_float");
     }
 }

@@ -412,12 +412,14 @@ macro_rules! cast_into {
 
 macro_rules! cast_into_float {
     ($ty:ty) => {
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f16)]
         cast_into_float!($ty; f16);
 
         cast_into_float!($ty; f32, f64);
 
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f128)]
         cast_into_float!($ty; f128);
     };
     ($ty:ty; $($into:ty),*) => {$(

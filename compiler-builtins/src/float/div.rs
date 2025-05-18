@@ -618,7 +618,7 @@ intrinsics! {
     }
 
     #[ppc_alias = __divkf3]
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     pub extern "C" fn __divtf3(a: f128, b: f128) -> f128 {
         div(a, b)
     }

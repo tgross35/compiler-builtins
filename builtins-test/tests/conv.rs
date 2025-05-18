@@ -1,5 +1,5 @@
-#![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![allow(internal_features)]
+#![feature(f16, f128, cfg_target_has_reliable_f16_f128)]
 // makes configuration easier
 #![allow(unused_macros)]
 #![allow(unused_imports)]
@@ -221,7 +221,7 @@ mod f_to_i {
     }
 
     #[test]
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     fn f128_to_int() {
         #[cfg(any(target_arch = "powerpc", target_arch = "powerpc64"))]
         use compiler_builtins::float::conv::{
@@ -303,7 +303,7 @@ mod extend {
         f32 => f64, Single => Double, __extendsfdf2, all();
     }
 
-    #[cfg(all(f16_enabled, f128_enabled))]
+    #[cfg(all(target_has_reliable_f16, target_has_reliable_f128))]
     #[cfg(not(any(
         target_arch = "powerpc",
         target_arch = "powerpc64",
@@ -319,7 +319,7 @@ mod extend {
         f64 => f128, Double => Quad, __extenddftf2, not(feature = "no-sys-f128");
     }
 
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     #[cfg(any(target_arch = "powerpc", target_arch = "powerpc64"))]
     f_to_f! {
         extend,
@@ -337,7 +337,7 @@ mod trunc {
         f64 => f32, Double => Single, __truncdfsf2, all();
     }
 
-    #[cfg(all(f16_enabled, f128_enabled))]
+    #[cfg(all(target_has_reliable_f16, target_has_reliable_f128))]
     #[cfg(not(any(
         target_arch = "powerpc",
         target_arch = "powerpc64",
@@ -353,7 +353,7 @@ mod trunc {
         f128 => f64, Quad => Double, __trunctfdf2, not(feature = "no-sys-f128");
     }
 
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     #[cfg(any(target_arch = "powerpc", target_arch = "powerpc64"))]
     f_to_f! {
         trunc,

@@ -5,7 +5,8 @@ use core::fmt;
 use super::{Float, Round, Status, f32_from_bits, f64_from_bits};
 
 /// Construct a 16-bit float from hex float representation (C-style)
-#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f16)]
 pub const fn hf16(s: &str) -> f16 {
     match parse_hex_exact(s, 16, 10) {
         Ok(bits) => f16::from_bits(bits as u16),
@@ -31,7 +32,8 @@ pub const fn hf64(s: &str) -> f64 {
 }
 
 /// Construct a 128-bit float from hex float representation (C-style)
-#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f128)]
 pub const fn hf128(s: &str) -> f128 {
     match parse_hex_exact(s, 128, 112) {
         Ok(bits) => f128::from_bits(bits),
@@ -486,7 +488,8 @@ mod parse_tests {
 
     use super::*;
 
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn rounding_properties(s: &str) -> Result<(), HexFloatParseError> {
         let (xd, s0) = parse_any(s, 16, 10, Round::Negative)?;
         let (xu, s1) = parse_any(s, 16, 10, Round::Positive)?;
@@ -531,7 +534,8 @@ mod parse_tests {
         Ok(())
     }
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn test_rounding() {
         let n = 1_i32 << 14;
         for i in -n..n {
@@ -604,7 +608,8 @@ mod parse_tests {
     // FIXME: this test is causing failures that are likely UB on various platforms
     #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn rounding() {
         let pi = std::f128::consts::PI;
         let s = format!("{}", Hexf(pi));
@@ -654,7 +659,8 @@ mod parse_tests {
     }
     // HACK(msrv): 1.63 rejects unknown width float literals at an AST level, so use a macro to
     // hide them from the AST.
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     macro_rules! f16_tests {
         () => {
             #[test]
@@ -705,7 +711,8 @@ mod parse_tests {
         };
     }
 
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     f16_tests!();
 
     #[test]
@@ -796,7 +803,8 @@ mod parse_tests {
 
     // HACK(msrv): 1.63 rejects unknown width float literals at an AST level, so use a macro to
     // hide them from the AST.
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     macro_rules! f128_tests {
         () => {
             #[test]
@@ -846,16 +854,19 @@ mod parse_tests {
         }
     }
 
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     f128_tests!();
 
     #[test]
     fn test_macros() {
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f16)]
         assert_eq!(hf16!("0x1.ffp+8").to_bits(), 0x5ffc_u16);
         assert_eq!(hf32!("0x1.ffep+8").to_bits(), 0x43fff000_u32);
         assert_eq!(hf64!("0x1.ffep+8").to_bits(), 0x407ffe0000000000_u64);
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f128)]
         assert_eq!(
             hf128!("0x1.ffep+8").to_bits(),
             0x4007ffe0000000000000000000000000_u128
@@ -872,7 +883,8 @@ mod tests_panicking {
 
     // HACK(msrv): 1.63 rejects unknown width float literals at an AST level, so use a macro to
     // hide them from the AST.
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     macro_rules! f16_tests {
         () => {
             #[test]
@@ -924,7 +936,8 @@ mod tests_panicking {
         };
     }
 
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     f16_tests!();
 
     #[test]
@@ -996,7 +1009,8 @@ mod tests_panicking {
 
     // HACK(msrv): 1.63 rejects unknown width float literals at an AST level, so use a macro to
     // hide them from the AST.
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     macro_rules! f128_tests {
         () => {
             #[test]
@@ -1054,7 +1068,8 @@ mod tests_panicking {
         };
     }
 
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     f128_tests!();
 }
 
@@ -1066,7 +1081,8 @@ mod print_tests {
     use super::*;
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn test_f16() {
         use std::format;
         // Exhaustively check that `f16` roundtrips.
@@ -1088,7 +1104,8 @@ mod print_tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn test_f16_to_f32() {
         use std::format;
         // Exhaustively check that these are equivalent for all `f16`:
@@ -1150,7 +1167,8 @@ mod print_tests {
         assert_eq!(Hexf(f32::NEG_INFINITY).to_string(), "-inf");
         assert_eq!(Hexf(f64::NEG_INFINITY).to_string(), "-inf");
 
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f16)]
         {
             assert_eq!(Hexf(f16::MAX).to_string(), "0x1.ffcp+15");
             assert_eq!(Hexf(f16::MIN).to_string(), "-0x1.ffcp+15");
@@ -1161,7 +1179,8 @@ mod print_tests {
             assert_eq!(Hexf(f16::NEG_INFINITY).to_string(), "-inf");
         }
 
-        #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+        #[cfg(unstable_float)]
+        #[cfg(target_has_reliable_f128)]
         {
             assert_eq!(
                 Hexf(f128::MAX).to_string(),

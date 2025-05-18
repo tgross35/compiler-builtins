@@ -7,14 +7,12 @@
     feature(wasm_numeric_instr)
 )]
 #![cfg_attr(
-    any(intrinsics_enabled, feature = "unstable-float"),
+    any(intrinsics_enabled, unstable_float),
     allow(internal_features)
 )]
-#![cfg_attr(feature = "unstable-float", feature(cfg_targest_has_reliable_f16_f128))]
-#![cfg_attr(all(feature = "unstable-float", target_has_reliable_f16), feature(f16))]
 #![cfg_attr(
-    all(feature = "unstable-float", target_has_reliable_f128),
-    feature(f128)
+    unstable_float,
+    feature(cfg_target_has_reliable_f16_f128, f16, f128)
 )]
 #![allow(clippy::assign_op_pattern)]
 #![allow(clippy::deprecated_cfg_attr)]

@@ -101,6 +101,11 @@ fn emit_cfg_shorthands(cfg: &Config) {
         // Shorthand to detect i586 targets
         println!("cargo:rustc-cfg=x86_no_sse");
     }
+
+    println!("cargo:rustc-check-cfg=cfg(unstable_float)");
+    if !cfg!(feature = "unstable-float") {
+        println!("cargo:rustc-cfg=unstable_float");
+    }
 }
 
 /// Reemit config that we make use of for test logging.

@@ -6,10 +6,8 @@ use crate::support::Round;
 
 // Placeholder so we can have `fmaf16` in the `Float` trait.
 #[allow(unused)]
-#[cfg(all(
-    feature = "unstable-float",
-    all(feature = "unstable-float", target_has_reliable_f16)
-))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f16)]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub(crate) fn fmaf16(_x: f16, _y: f16, _z: f16) -> f16 {
     unimplemented!()
@@ -52,10 +50,8 @@ pub fn fma(x: f64, y: f64, z: f64) -> f64 {
 /// Fused multiply add (f128)
 ///
 /// Computes `(x*y)+z`, rounded as one ternary operation (i.e. calculated with infinite precision).
-#[cfg(all(
-    feature = "unstable-float",
-    all(feature = "unstable-float", target_has_reliable_f128)
-))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f128)]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fmaf128(x: f128, y: f128, z: f128) -> f128 {
     generic::fma_round(x, y, z, Round::Nearest).val
@@ -126,10 +122,8 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(
-        feature = "unstable-float",
-        all(feature = "unstable-float", target_has_reliable_f128)
-    ))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn spec_test_f128() {
         spec_test::<f128>(fmaf128);
     }

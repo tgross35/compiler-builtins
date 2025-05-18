@@ -15,10 +15,12 @@ pub use env::{FpResult, Round, Status};
 #[allow(unused_imports)]
 pub use float_traits::{DFloat, Float, HFloat, IntTy};
 pub(crate) use float_traits::{f32_from_bits, f64_from_bits};
-#[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f16)]
 #[allow(unused_imports)]
 pub use hex_float::hf16;
-#[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+#[cfg(unstable_float)]
+#[cfg(target_has_reliable_f128)]
 #[allow(unused_imports)]
 pub use hex_float::hf128;
 #[allow(unused_imports)]

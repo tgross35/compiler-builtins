@@ -73,7 +73,8 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f16))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f16)]
     fn spec_tests_f16() {
         let cases = [];
         spec_test::<f16>(&cases);
@@ -122,7 +123,8 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "unstable-float", target_has_reliable_f128))]
+    #[cfg(unstable_float)]
+    #[cfg(target_has_reliable_f128)]
     fn spec_tests_f128() {
         let cases = [];
         spec_test::<f128>(&cases);

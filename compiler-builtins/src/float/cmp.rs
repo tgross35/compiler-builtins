@@ -166,7 +166,7 @@ intrinsics! {
     }
 }
 
-#[cfg(f128_enabled)]
+#[cfg(target_has_reliable_f128)]
 intrinsics! {
     #[ppc_alias = __lekf2]
     pub extern "C" fn __letf2(a: f128, b: f128) -> crate::float::cmp::CmpResult {

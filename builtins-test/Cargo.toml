@@ -97,3 +97,13 @@ harness = false
 name = "mem_icount"
 harness = false
 required-features = ["icount"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+    # Internal features aren't marked known config by default, we use these to
+    # gate tests.
+    'cfg(target_has_reliable_f16)',
+    'cfg(target_has_reliable_f16_math)',
+    'cfg(target_has_reliable_f128)',
+    'cfg(target_has_reliable_f128_math)',
+] }

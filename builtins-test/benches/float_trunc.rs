@@ -1,11 +1,11 @@
-#![cfg_attr(f128_enabled, feature(f128))]
-#![cfg_attr(f16_enabled, feature(f16))]
+#![allow(internal_features)]
+#![feature(f16, f128, cfg_target_has_reliable_f16_f128)]
 
 use builtins_test::float_bench;
 use compiler_builtins::float::trunc;
 use criterion::{Criterion, criterion_main};
 
-#[cfg(f16_enabled)]
+#[cfg(target_has_reliable_f16)]
 float_bench! {
     name: trunc_f32_f16,
     sig: (a: f32) -> f16,
@@ -27,7 +27,7 @@ float_bench! {
     ],
 }
 
-#[cfg(f16_enabled)]
+#[cfg(target_has_reliable_f16)]
 float_bench! {
     name: trunc_f64_f16,
     sig: (a: f64) -> f16,
@@ -82,7 +82,7 @@ float_bench! {
     ],
 }
 
-#[cfg(all(f16_enabled, f128_enabled))]
+#[cfg(all(target_has_reliable_f16, target_has_reliable_f128))]
 float_bench! {
     name: trunc_f128_f16,
     sig: (a: f128) -> f16,
@@ -94,7 +94,7 @@ float_bench! {
     asm: [],
 }
 
-#[cfg(f128_enabled)]
+#[cfg(target_has_reliable_f128)]
 float_bench! {
     name: trunc_f128_f32,
     sig: (a: f128) -> f32,
@@ -106,7 +106,7 @@ float_bench! {
     asm: [],
 }
 
-#[cfg(f128_enabled)]
+#[cfg(target_has_reliable_f128)]
 float_bench! {
     name: trunc_f128_f64,
     sig: (a: f128) -> f64,
@@ -122,7 +122,7 @@ pub fn float_trunc() {
     let mut criterion = Criterion::default().configure_from_args();
 
     // FIXME(#655): `f16` tests disabled until we can bootstrap symbols
-    #[cfg(f16_enabled)]
+    #[cfg(target_has_reliable_f16)]
     #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
     {
         trunc_f32_f16(&mut criterion);
@@ -131,10 +131,10 @@ pub fn float_trunc() {
 
     trunc_f64_f32(&mut criterion);
 
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     {
         // FIXME(#655): `f16` tests disabled until we can bootstrap symbols
-        #[cfg(f16_enabled)]
+        #[cfg(target_has_reliable_f16)]
         #[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
         trunc_f128_f16(&mut criterion);
 

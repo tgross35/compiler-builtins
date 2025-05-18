@@ -202,7 +202,7 @@ intrinsics! {
     }
 
     #[ppc_alias = __addkf3]
-    #[cfg(f128_enabled)]
+    #[cfg(target_has_reliable_f128)]
     pub extern "C" fn __addtf3(a: f128, b: f128) -> f128 {
         add(a, b)
     }
