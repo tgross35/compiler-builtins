@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 
 [dev-dependencies]
-libm = { path = "../../libm" }
+libm = { path = "../../compiler-builtins/src/math/libm" }
 
 [build-dependencies]
 cc = "1.2.16"

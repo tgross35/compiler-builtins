@@ -1,4 +1,4 @@
-#[path = "../libm/configure.rs"]
+#[path = "../compiler-builtins/src/math/libm/configure.rs"]
 mod configure;
 use configure::Config;
 

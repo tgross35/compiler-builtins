@@ -7,7 +7,7 @@ members = [
     "crates/musl-math-sys",
     "crates/panic-handler",
     "crates/util",
-    "libm",
+    "compiler-builtins/src/math/libm",
     "libm-test",
 ]
 
@@ -15,7 +15,7 @@ default-members = [
     "builtins-test",
     "compiler-builtins",
     "crates/libm-macros",
-    "libm",
+    "compiler-builtins/src/math/libm",
     "libm-test",
 ]
 

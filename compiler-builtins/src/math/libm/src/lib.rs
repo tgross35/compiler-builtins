@@ -24,6 +24,7 @@
 #![forbid(unsafe_op_in_unsafe_fn)]
 
 mod libm_helper;
+// #[path = "../../compiler-builtins/src/math/libm_math/mod.rs"]
 mod math;
 
 use core::{f32, f64};
