@@ -91,6 +91,9 @@ cfg_if! {
     }
 }
 
+#[cfg(feature = "apfloat")]
+pub mod apfloat;
+
 // Private modules
 mod arch;
 mod expo2;

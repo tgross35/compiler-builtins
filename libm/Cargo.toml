@@ -13,7 +13,9 @@ edition = "2021"
 rust-version = "1.63"
 
 [features]
-default = ["arch"]
+default = ["arch", "apfloat"]
+
+apfloat = ["dep:rustc_apfloat"]
 
 # Enable architecture-specific features such as SIMD or assembly routines.
 arch = []
@@ -38,6 +40,9 @@ unstable-float = []
 # Rust dependencies. Setting this overrides all features that may enable
 # hard float operations.
 force-soft-floats = []
+
+[dependencies]
+rustc_apfloat = { version = "0.2.2", optional = true }
 
 [dev-dependencies]
 no-panic = "0.1.35"

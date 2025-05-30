@@ -38,5 +38,5 @@ pub use fmod::fmod;
 pub use rint::rint_round;
 pub use round::round;
 pub use scalbn::scalbn;
-pub use sqrt::sqrt;
+pub use sqrt::{SqrtHelper, sqrt};
 pub use trunc::trunc;
