@@ -61,6 +61,7 @@ pub fn fmaximum_num(x: f64, y: f64) -> f64 {
 ///
 /// This coincides with IEEE 754-2019 `maximumNumber`. The result orders -0.0 < 0.0.
 #[cfg(f128_enabled)]
+#[unsafe(no_mangle)]
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
 pub fn fmaximum_numf128(x: f128, y: f128) -> f128 {
     super::generic::fmaximum_num(x, y)

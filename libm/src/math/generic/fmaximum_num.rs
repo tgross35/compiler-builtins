@@ -15,13 +15,34 @@ use crate::support::Float;
 
 #[inline]
 pub fn fmaximum_num<F: Float>(x: F, y: F) -> F {
-    if x > y || y.is_nan() {
-        x
-    } else if y > x || x.is_nan() {
+    let y_ = y.is_nan();
+    let f = x > y;
+    let s = y > x;
+    let x_ = x.is_nan();
+    let p = x.is_sign_positive();
+
+    if (!f && !y_ && !p) || (!f && !y_ && x_) || (!f && !y_ && s) {
         y
-    } else if x.is_sign_positive() {
-        x
     } else {
-        y
+        x
     }
+
+    // if f || y_ {
+    //     x
+    // } else if s || x_ {
+    //     y
+    // } else if p {
+    //     x
+    // } else {
+    //     y
+    // }
+    // if x > y || y.is_nan() {
+    //     x
+    // } else if y > x || x.is_nan() {
+    //     y
+    // } else if x.is_sign_positive() {
+    //     x
+    // } else {
+    //     y
+    // }
 }
