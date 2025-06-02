@@ -15,7 +15,7 @@ use crate::support::Float;
 
 #[inline]
 pub fn fminimum_num<F: Float>(x: F, y: F) -> F {
-    let res = if x > y || x.is_nan() {
+    if x > y || x.is_nan() {
         y
     } else if y > x || y.is_nan() {
         x
@@ -23,8 +23,5 @@ pub fn fminimum_num<F: Float>(x: F, y: F) -> F {
         y
     } else {
         x
-    };
-
-    // Canonicalize
-    res * F::ONE
+    }
 }

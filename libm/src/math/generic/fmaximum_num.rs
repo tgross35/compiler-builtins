@@ -15,7 +15,7 @@ use crate::support::Float;
 
 #[inline]
 pub fn fmaximum_num<F: Float>(x: F, y: F) -> F {
-    let res = if x > y || y.is_nan() {
+    if x > y || y.is_nan() {
         x
     } else if y > x || x.is_nan() {
         y
@@ -23,8 +23,5 @@ pub fn fmaximum_num<F: Float>(x: F, y: F) -> F {
         x
     } else {
         y
-    };
-
-    // Canonicalize
-    res * F::ONE
+    }
 }
