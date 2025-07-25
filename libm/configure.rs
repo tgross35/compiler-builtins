@@ -5,14 +5,18 @@ use std::process::{Command, Stdio};
 use std::{env, str};
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct Config {
     pub manifest_dir: PathBuf,
     pub out_dir: PathBuf,
     pub opt_level: String,
     pub cargo_features: Vec<String>,
     pub target_triple: String,
+    pub target_triple_split: Vec<String>,
     pub target_arch: String,
     pub target_env: String,
+    pub target_pointer_width: u8,
+    pub target_endian: Endian,
     pub target_family: Option<String>,
     pub target_os: String,
     pub target_string: String,
@@ -20,11 +24,18 @@ pub struct Config {
     pub target_features: Vec<String>,
     pub reliable_f128: bool,
     pub reliable_f16: bool,
+    pub cfg_for: CfgFor,
 }
 
 impl Config {
-    pub fn from_env() -> Self {
+    pub fn from_env(cfg_for: CfgFor) -> Self {
         let target_triple = env::var("TARGET").unwrap();
+        let target_triple_split = target_triple.split('-').map(ToOwned::to_owned).collect();
+        let target_endian = match env::var("CARGO_CFG_TARGET_ENDIAN").unwrap().as_str() {
+            "little" => Endian::Little,
+            "big" => Endian::Big,
+            x => panic!("unknown endian {x}"),
+        };
         let target_features = env::var("CARGO_CFG_TARGET_FEATURE")
             .map(|feats| feats.split(',').map(ToOwned::to_owned).collect())
             .unwrap_or_default();
@@ -55,6 +66,7 @@ impl Config {
 
         Self {
             target_triple,
+            target_triple_split,
             manifest_dir: PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()),
             out_dir: PathBuf::from(env::var("OUT_DIR").unwrap()),
             opt_level: env::var("OPT_LEVEL").unwrap(),
@@ -65,18 +77,38 @@ impl Config {
             target_os: env::var("CARGO_CFG_TARGET_OS").unwrap(),
             target_string: env::var("TARGET").unwrap(),
             target_vendor: env::var("CARGO_CFG_TARGET_VENDOR").unwrap(),
+            target_pointer_width: env::var("CARGO_CFG_TARGET_POINTER_WIDTH")
+                .unwrap()
+                .parse()
+                .unwrap(),
+            target_endian,
             target_features,
             reliable_f128,
             reliable_f16,
+            cfg_for,
         }
     }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum Endian {
+    Little,
+    Big,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CfgFor {
+    Libm,
+    LibmTest,
+    Builtins,
+    BuiltinsTest,
 }
 
 /// Libm gets most config options made available.
 #[allow(dead_code)]
 pub fn emit_libm_config(cfg: &Config) {
-    emit_intrinsics_cfg();
-    emit_arch_cfg();
+    emit_intrinsics_cfg(cfg);
+    emit_arch_cfg(cfg);
     emit_optimization_cfg(cfg);
     emit_cfg_shorthands(cfg);
     emit_cfg_env(cfg);
@@ -94,19 +126,30 @@ pub fn emit_test_config(cfg: &Config) {
 
 /// Simplify the feature logic for enabling intrinsics so code only needs to use
 /// `cfg(intrinsics_enabled)`.
-fn emit_intrinsics_cfg() {
+fn emit_intrinsics_cfg(cfg: &Config) {
+    // Only used for `libm`
+    if !matches!(cfg.cfg_for, CfgFor::Libm | CfgFor::Builtins) {
+        return;
+    }
+
     println!("cargo:rustc-check-cfg=cfg(intrinsics_enabled)");
 
-    // Disabled by default; `unstable-intrinsics` enables again; `force-soft-floats` overrides
-    // to disable.
-    if cfg!(feature = "unstable-intrinsics") && !cfg!(feature = "force-soft-floats") {
+    // Disabled by default for `libm`, enabled for `compiler-builtins`
+    if cfg.cfg_for == CfgFor::Builtins
+        || (cfg.cfg_for == CfgFor::Libm && cfg!(feature = "unstable-intrinsics"))
+    {
         println!("cargo:rustc-cfg=intrinsics_enabled");
     }
 }
 
 /// Simplify the feature logic for enabling arch-specific features so code only needs to use
 /// `cfg(arch_enabled)`.
-fn emit_arch_cfg() {
+fn emit_arch_cfg(cfg: &Config) {
+    // Only used in `libm`
+    if !matches!(cfg.cfg_for, CfgFor::Libm) {
+        return;
+    }
+
     println!("cargo:rustc-check-cfg=cfg(arch_enabled)");
 
     // Enabled by default via the "arch" feature, `force-soft-floats` overrides to disable.
@@ -117,6 +160,11 @@ fn emit_arch_cfg() {
 
 /// Some tests are extremely slow. Emit a config option based on optimization level.
 fn emit_optimization_cfg(cfg: &Config) {
+    // Test helper configuration
+    if !matches!(cfg.cfg_for, CfgFor::LibmTest) {
+        return;
+    }
+
     println!("cargo:rustc-check-cfg=cfg(optimizations_enabled)");
 
     if !matches!(cfg.opt_level.as_str(), "0" | "1") {
@@ -135,6 +183,11 @@ fn emit_cfg_shorthands(cfg: &Config) {
 
 /// Reemit config that we make use of for test logging.
 fn emit_cfg_env(cfg: &Config) {
+    // Test helper configuration
+    if !matches!(cfg.cfg_for, CfgFor::LibmTest) {
+        return;
+    }
+
     println!(
         "cargo:rustc-env=CFG_CARGO_FEATURES={:?}",
         cfg.cargo_features
