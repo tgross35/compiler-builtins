@@ -86,14 +86,15 @@ use super::HalfRep;
 use crate::float::Float;
 use crate::int::{CastFrom, CastInto, DInt, HInt, Int, MinInt};
 
-fn div<F: Float>(a: F, b: F) -> F
+fn div<F>(a: F, b: F) -> F
 where
+    F: Float + DivHelper,
     F::Int: CastInto<i32>,
     F::Int: From<HalfRep<F>>,
     F::Int: From<u8>,
     F::Int: HInt + DInt,
     <F::Int as HInt>::D: ops::Shr<u32, Output = <F::Int as HInt>::D>,
-    F::Int: From<u32>,
+    F::Int: CastFrom<u32>,
     u16: CastInto<F::Int>,
     i32: CastInto<F::Int>,
     u32: CastInto<F::Int>,
@@ -394,8 +395,7 @@ where
         x_uq0
     } else {
         // C is (3/4 + 1/sqrt(2)) - 1 truncated to 64 fractional bits as UQ0.n
-        let c: F::Int = F::Int::from(0x7504F333u32) << (F::BITS - 32);
-        let mut x_uq0: F::Int = c.wrapping_sub(b_uq1);
+        let mut x_uq0: F::Int = F::C.wrapping_sub(b_uq1);
 
         // E_0 <= 3/4 - 1/sqrt(2) + 2 * 2^-64
         // x_uq0
@@ -472,7 +472,7 @@ where
     // r = a - b * q
     let mut abs_result = if res_exponent > 0 {
         let mut ret = quotient & significand_mask;
-        ret |= F::Int::from(res_exponent as u32) << significand_bits;
+        ret |= F::Int::cast_from(res_exponent as u32) << significand_bits;
         residual_lo <<= 1;
         ret
     } else {
@@ -606,7 +606,35 @@ where
     (x_uq0.widen_mul(corr_uq1) >> (I::BITS - 1)).lo()
 }
 
+const C: u32 = 0x7504F333u32;
+
+trait DivHelper: Float {
+    const C: Self::Int;
+}
+
+#[cfg(f16_enabled)]
+impl DivHelper for f16 {
+    const C: u16 = (C >> 16) as u16;
+}
+
+impl DivHelper for f32 {
+    const C: u32 = C;
+}
+
+impl DivHelper for f64 {
+    const C: u64 = (C as u64) << 32;
+}
+
+#[cfg(f128_enabled)]
+impl DivHelper for f128 {
+    const C: u128 = (C as u128) << 96;
+}
+
 intrinsics! {
+    pub extern "C" fn __divhf3(a: f16, b: f16) -> f16 {
+        div(a, b)
+    }
+
     #[arm_aeabi_alias = __aeabi_fdiv]
     pub extern "C" fn __divsf3(a: f32, b: f32) -> f32 {
         div(a, b)

@@ -1,4 +1,5 @@
-#![feature(f128)]
+#![cfg_attr(f16_enabled, feature(f16))]
+#![cfg_attr(f128_enabled, feature(f128))]
 #![allow(unused_macros)]
 
 use builtins_test::*;
@@ -141,6 +142,11 @@ macro_rules! float {
 #[cfg(not(x86_no_sse))]
 mod float_div {
     use super::*;
+
+    #[cfg(f16_enabled)]
+    float! {
+        f16, __divhf3, Half, all();
+    }
 
     float! {
         f32, __divsf3, Single, all();
