@@ -130,7 +130,7 @@ macro_rules! intrinsics {
 
         $($rest:tt)*
     ) => (
-        #[cfg($name = "optimized-c")]
+        #[cfg(optimized_c = stringify!($name))]
         pub $(unsafe $($empty)? )? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {
             unsafe extern $abi {
                 fn $name($($argname: $ty),*) $(-> $ret)?;
@@ -140,7 +140,7 @@ macro_rules! intrinsics {
             }
         }
 
-        #[cfg(not($name = "optimized-c"))]
+        #[cfg(not(optimized_c = stringify!($name)))]
         intrinsics! {
             $(#[$($attr)*])*
             pub $(unsafe $($empty)? )? extern $abi fn $name( $($argname: $ty),* ) $(-> $ret)? {

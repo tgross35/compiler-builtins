@@ -1,6 +1,7 @@
 mod configure;
 
 use std::env;
+use std::fmt::Write;
 
 use configure::{Target, configure_aliases};
 
@@ -165,13 +166,20 @@ fn configure_check_cfg() {
         }
     }
 
+    let mut opt_c_vals = String::new();
     for fn_name in HAS_OPTIMIZED_C
         .iter()
         .copied()
         .chain(aarch_atomic.iter().map(|s| s.as_str()))
     {
-        println!("cargo::rustc-check-cfg=cfg({fn_name}, values(\"optimized-c\"))",);
+        write!(opt_c_vals, "\"{fn_name}\",").unwrap();
     }
+
+    if opt_c_vals.ends_with(',') {
+        opt_c_vals.pop();
+    }
+
+    println!("cargo::rustc-check-cfg=cfg(optimized_c, values({opt_c_vals}))",);
 
     // Rustc is unaware of sparc target features, but this does show up from
     // `rustc --print target-features --target sparc64-unknown-linux-gnu`.
@@ -595,7 +603,7 @@ mod c {
                 cfg.file(&src);
                 println!("cargo:rerun-if-changed={}", src.display());
             }
-            println!("cargo:rustc-cfg={}=\"optimized-c\"", sym);
+            println!("cargo:rustc-cfg=\"optimized-c\"={}", sym);
         }
 
         if link_against_prebuilt_rt {
@@ -643,7 +651,7 @@ mod c {
                     &[(1, "relax"), (2, "acq"), (3, "rel"), (4, "acq_rel")]
                 {
                     let sym = format!("__aarch64_{}{}_{}", instruction_type, size, model_name);
-                    println!("cargo:rustc-cfg={}=\"optimized-c\"", sym);
+                    println!("cargo:rustc-cfg=\"optimized-c\"={}", sym);
 
                     if link_against_prebuilt_rt {
                         continue;
