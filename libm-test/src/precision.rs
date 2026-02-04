@@ -67,7 +67,7 @@ pub fn default_ulp(ctx: &CheckCtx) -> u32 {
         Bn::Exp2 => 1,
         Bn::Expm1 => 1,
         Bn::Hypot => 1,
-        Bn::Lgamma | Bn::LgammaR => 16,
+        Bn::Lgamma | Bn::LgammaR => 18,
         Bn::Log => 1,
         Bn::Log10 => 1,
         Bn::Log1p => 1,
@@ -102,7 +102,6 @@ pub fn default_ulp(ctx: &CheckCtx) -> u32 {
         match ctx.base_name {
             Bn::Cosh => ulp = 2,
             Bn::Exp10 if usize::BITS < 64 => ulp = 4,
-            Bn::Lgamma | Bn::LgammaR => ulp = 400,
             Bn::Tanh => ulp = 4,
             _ => (),
         }
@@ -218,15 +217,6 @@ impl MaybeOverride<(f16,)> for SpecialCase {}
 
 impl MaybeOverride<(f32,)> for SpecialCase {
     fn check_float<F: Float>(input: (f32,), actual: F, expected: F, ctx: &CheckCtx) -> CheckAction {
-        if (ctx.base_name == BaseName::Lgamma || ctx.base_name == BaseName::LgammaR)
-            && input.0 > 4e36
-            && expected.is_infinite()
-            && !actual.is_infinite()
-        {
-            // This result should saturate but we return a finite value.
-            return XFAIL_NOCHECK;
-        }
-
         if ctx.base_name == BaseName::J0 && input.0 < -1e34 {
             // Errors get huge close to -inf
             return XFAIL_NOCHECK;
@@ -306,14 +296,6 @@ fn unop_common<F1: Float, F2: Float>(
         }
 
         return XFAIL("acoshf undefined");
-    }
-
-    if (ctx.base_name == BaseName::Lgamma || ctx.base_name == BaseName::LgammaR)
-        && input.0 < F1::ZERO
-        && !input.0.is_infinite()
-    {
-        // loggamma should not be defined for x < 0, yet we both return results
-        return XFAIL_NOCHECK;
     }
 
     // fabs and copysign must leave NaNs untouched.
