@@ -601,7 +601,6 @@ impl MpOp for crate::op::lgammaf::Routine {
     }
 }
 
-
 /* stub implementations so we don't need to special case them */
 
 impl MpOp for crate::op::nextafter::Routine {
