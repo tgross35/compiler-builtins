@@ -7,7 +7,12 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 api-list-common.workspace = true
+env_logger.workspace = true
 getopts.workspace = true
 glob.workspace = true
+log.workspace = true
 pretty_assertions.workspace = true
 regex.workspace = true
+serde_core.workspace = true
+# We need the ability to sort so enable indexmap
+serde_json = { workspace = true, features = ["indexmap"] }

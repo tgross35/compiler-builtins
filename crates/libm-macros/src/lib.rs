@@ -1,7 +1,7 @@
 mod enums;
 mod parse;
 
-use api_list_common::{ALL_OPERATIONS, Group, MathOpInfo, Ty};
+use api_list_common::{ALL_OPERATIONS, Group, MathOpInfo, OpScope, Ty, base_name};
 use parse::{Invocation, StructuredInput};
 use proc_macro as pm;
 use proc_macro2::{self as pm2, Span};
@@ -478,46 +478,6 @@ impl VisitMut for MacroReplace {
         self.visit_ident_inner(i);
         syn::visit_mut::visit_ident_mut(self, i);
     }
-}
-
-/// Return the unsuffixed version of a function name; e.g. `abs` and `absf` both return `abs`,
-/// `lgamma_r` and `lgammaf_r` both return `lgamma_r`.
-fn base_name(name: &str) -> &str {
-    let known_mappings = [
-        ("erff", "erf"),
-        ("erf", "erf"),
-        ("lgammaf_r", "lgamma_r"),
-        ("modff", "modf"),
-        ("modf", "modf"),
-    ];
-
-    if let Some(found) = known_mappings.iter().find(|known| known.0 == name) {
-        return found.1;
-    }
-
-    // Attempt to strip unambiguous suffixes first. This is repeated so e.g.
-    // `extend_f32_f64` turns into `extend`.
-    let strip = [
-        "_f16", "_f32", "_f64", "_f128", "_i32", "_i64", "_i128", "_u32", "_u64", "_u128", "f16",
-        "f32", "f64", "f128",
-    ];
-
-    let mut any_found = false;
-    let mut ret = name;
-
-    for sfx in strip {
-        if let Some(stripped) = ret.strip_suffix(sfx) {
-            ret = stripped;
-            any_found = true;
-        }
-    }
-
-    // Only if no suffix was stripped, try stripping the C-style float suffix.
-    if !any_found && let Some(stripped) = ret.strip_suffix("f") {
-        ret = stripped;
-    }
-
-    ret
 }
 
 fn ty_to_tokens(ty: Ty) -> pm2::TokenStream {

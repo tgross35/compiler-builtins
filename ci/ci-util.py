@@ -180,7 +180,8 @@ class FunctionDef(TypedDict):
     """Type for an entry in `function-definitions.json`"""
 
     sources: list[str]
-    type: str
+    # This is just used for splitting up CI jobs
+    type_group: str
 
 
 class Context:
@@ -262,7 +263,7 @@ class Context:
 
         ret: dict[str, list[str]] = {}
         for r in sorted(routines):
-            ret.setdefault(self.defs[r]["type"], []).append(r)
+            ret.setdefault(self.defs[r]["type_group"], []).append(r)
 
         return ret
 

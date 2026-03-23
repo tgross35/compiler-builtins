@@ -1449,6 +1449,18 @@ pub enum Group {
     Integer,
 }
 
+impl Group {
+    pub fn name(self) -> &'static str {
+        match self {
+            Group::F16 => "f16",
+            Group::F32 => "f32",
+            Group::F64 => "f64",
+            Group::F128 => "f128",
+            Group::Integer => "int",
+        }
+    }
+}
+
 impl fmt::Display for Ty {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
@@ -1532,6 +1544,30 @@ pub static ALL_OPERATIONS: LazyLock<Vec<MathOpInfo>> = LazyLock::new(|| {
     ret.sort_by_key(|item| item.name);
     ret
 });
+
+/// Return the unsuffixed version of a function name; e.g. `abs` and `absf` both return `abs`,
+/// `lgamma_r` and `lgammaf_r` both return `lgamma_r`.
+#[allow(dead_code)]
+pub fn base_name(name: &str) -> &str {
+    let known_mappings = &[
+        ("erff", "erf"),
+        ("erf", "erf"),
+        ("lgammaf_r", "lgamma_r"),
+        ("modff", "modf"),
+        ("modf", "modf"),
+    ];
+
+    match known_mappings.iter().find(|known| known.0 == name) {
+        Some(found) => found.1,
+        None => name
+            .strip_suffix("f")
+            .or_else(|| name.strip_suffix("f16"))
+            .or_else(|| name.strip_suffix("f32"))
+            .or_else(|| name.strip_suffix("f64"))
+            .or_else(|| name.strip_suffix("f128"))
+            .unwrap_or(name),
+    }
+}
 
 #[cfg(test)]
 mod tests {
