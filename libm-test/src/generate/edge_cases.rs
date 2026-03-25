@@ -5,7 +5,7 @@ use libm::support::{CastInto, Float, Int, MinInt};
 use crate::domain::get_domain;
 use crate::generate::KnownSize;
 use crate::run_cfg::{check_near_count, check_point_count};
-use crate::{Arg0, Arg1, Arg2, BaseName, CheckCtx, FloatExt, MathOp, Ty, test_log};
+use crate::{Arg0, Arg1, Arg2, Arg3, BaseName, CheckCtx, FloatExt, MathOp, Ty, test_log};
 
 /// Generate a sequence of edge cases, e.g. numbers near zeroes and infiniteis.
 pub trait EdgeCaseInput<Op> {
@@ -267,6 +267,38 @@ macro_rules! impl_edge_case_input {
                     .checked_mul(steps1)
                     .unwrap()
                     .checked_mul(steps2)
+                    .unwrap();
+
+                (iter, count)
+            }
+        }
+
+        impl<Op> EdgeCaseInput<Op> for ($fty, $fty, $fty, $fty)
+        where
+            Op: MathOp<RustArgs = Self>,
+        {
+            fn get_cases(ctx: &CheckCtx) -> (impl Iterator<Item = Self>, u64) {
+                let (iter0, steps0) = float_edge_cases::<Arg0<Op>>(ctx, 0);
+                let (iter1, steps1) = float_edge_cases::<Arg1<Op>>(ctx, 1);
+                let (iter2, steps2) = float_edge_cases::<Arg2<Op>>(ctx, 2);
+                let (iter3, steps3) = float_edge_cases::<Arg3<Op>>(ctx, 3);
+
+                let iter = iter0
+                    .flat_map(move |first| iter1.clone().map(move |second| (first, second)))
+                    .flat_map(move |(first, second)| {
+                        iter2.clone().map(move |third| (first, second, third))
+                    })
+                    .flat_map(move |(first, second, third)| {
+                        iter3
+                            .clone()
+                            .map(move |fourth| (first, second, third, fourth))
+                    });
+                let count = steps0
+                    .checked_mul(steps1)
+                    .unwrap()
+                    .checked_mul(steps2)
+                    .unwrap()
+                    .checked_mul(steps3)
                     .unwrap();
 
                 (iter, count)

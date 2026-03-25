@@ -122,6 +122,26 @@ fn powif128_cases() -> Vec<TestCase<op::powif128::Routine>> {
     vec![]
 }
 
+/* complex */
+
+#[cfg(f16_enabled)]
+fn mul_cplx_f16_cases() -> Vec<TestCase<op::mul_cplx_f16::Routine>> {
+    vec![]
+}
+
+fn mul_cplx_f32_cases() -> Vec<TestCase<op::mul_cplx_f32::Routine>> {
+    vec![]
+}
+
+fn mul_cplx_f64_cases() -> Vec<TestCase<op::mul_cplx_f64::Routine>> {
+    vec![]
+}
+
+#[cfg(f128_enabled)]
+fn mul_cplx_f128_cases() -> Vec<TestCase<op::mul_cplx_f128::Routine>> {
+    vec![]
+}
+
 /* comparison */
 
 #[cfg(f16_enabled)]

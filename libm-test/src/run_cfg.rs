@@ -317,6 +317,7 @@ pub fn iteration_count(ctx: &CheckCtx, argnum: usize) -> u64 {
         1 => total_iterations,
         2 => (total_iterations as f64).sqrt().ceil() as u64,
         3 => (total_iterations as f64).cbrt().ceil() as u64,
+        4 => (total_iterations as f64).powf(1.0 / 4.0).ceil() as u64,
         _ => panic!("test has more than three arguments"),
     };
 

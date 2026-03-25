@@ -111,6 +111,43 @@ const ALL_OPERATIONS_NESTED: &[NestedOp] = &[
         fn_list: &["powif128"],
         scope: OpScope::BuiltinsPublic,
     },
+    /* Complex arithmetic */
+    NestedOp {
+        rust_sig: Signature {
+            args: &[Ty::F16, Ty::F16, Ty::F16, Ty::F16],
+            returns: &[Ty::F16, Ty::F16],
+        },
+        c_sig: None,
+        fn_list: &["mul_cplx_f16"],
+        scope: OpScope::BuiltinsPublic,
+    },
+    NestedOp {
+        rust_sig: Signature {
+            args: &[Ty::F32, Ty::F32, Ty::F32, Ty::F32],
+            returns: &[Ty::F32, Ty::F32],
+        },
+        c_sig: None,
+        fn_list: &["mul_cplx_f32"],
+        scope: OpScope::BuiltinsPublic,
+    },
+    NestedOp {
+        rust_sig: Signature {
+            args: &[Ty::F64, Ty::F64, Ty::F64, Ty::F64],
+            returns: &[Ty::F64, Ty::F64],
+        },
+        c_sig: None,
+        fn_list: &["mul_cplx_f64"],
+        scope: OpScope::BuiltinsPublic,
+    },
+    NestedOp {
+        rust_sig: Signature {
+            args: &[Ty::F128, Ty::F128, Ty::F128, Ty::F128],
+            returns: &[Ty::F128, Ty::F128],
+        },
+        c_sig: None,
+        fn_list: &["mul_cplx_f128"],
+        scope: OpScope::BuiltinsPublic,
+    },
     /* Comparison */
     NestedOp {
         rust_sig: Signature {
@@ -1353,6 +1390,10 @@ pub enum Ty {
     F32,
     F64,
     F128,
+    ComplexF16,
+    ComplexF32,
+    ComplexF64,
+    ComplexF128,
     I32,
     I64,
     I128,
@@ -1382,18 +1423,24 @@ impl Ty {
             Ty::F64 | Ty::I64 | Ty::U64 | Ty::MutF64 => 64,
             Ty::F128 | Ty::I128 | Ty::U128 | Ty::MutF128 => 128,
             Ty::USize => usize::BITS,
+
             // Assume we're not testing on a 16-bit system
             Ty::CInt | Ty::MutCInt => 32,
+
+            Ty::ComplexF16 => 32,
+            Ty::ComplexF32 => 64,
+            Ty::ComplexF64 => 128,
+            Ty::ComplexF128 => 256,
         }
     }
 
     /// How to group functions that mostly have this kind of input.
     fn group(self) -> Group {
         match self {
-            Ty::F16 | Ty::MutF16 => Group::F16,
-            Ty::F32 | Ty::MutF32 => Group::F32,
-            Ty::F64 | Ty::MutF64 => Group::F64,
-            Ty::F128 | Ty::MutF128 => Group::F128,
+            Ty::F16 | Ty::ComplexF16 | Ty::MutF16 => Group::F16,
+            Ty::F32 | Ty::ComplexF32 | Ty::MutF32 => Group::F32,
+            Ty::F64 | Ty::ComplexF64 | Ty::MutF64 => Group::F64,
+            Ty::F128 | Ty::ComplexF128 | Ty::MutF128 => Group::F128,
             Ty::I32
             | Ty::I64
             | Ty::I128
@@ -1414,6 +1461,10 @@ impl Ty {
             | Ty::F32
             | Ty::F64
             | Ty::F128
+            | Ty::ComplexF16
+            | Ty::ComplexF32
+            | Ty::ComplexF64
+            | Ty::ComplexF128
             | Ty::MutF16
             | Ty::MutF32
             | Ty::MutF64
@@ -1451,6 +1502,10 @@ impl fmt::Display for Ty {
             Ty::F32 => "f32",
             Ty::F64 => "f64",
             Ty::F128 => "f128",
+            Ty::ComplexF16 => "compiler_builtins::float::Complex<f16>",
+            Ty::ComplexF32 => "compiler_builtins::float::Complex<f32>",
+            Ty::ComplexF64 => "compiler_builtins::float::Complex<f64>",
+            Ty::ComplexF128 => "compiler_builtins::float::Complex<f128>",
             Ty::I32 => "i32",
             Ty::I64 => "i64",
             Ty::I128 => "i128",

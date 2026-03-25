@@ -1,5 +1,6 @@
 pub mod add;
 pub mod cmp;
+pub mod cmul;
 pub mod conv;
 pub mod div;
 pub mod extend;
@@ -13,3 +14,9 @@ pub mod trunc;
 pub(crate) use traits::{Float, HalfRep};
 #[cfg(feature = "unstable-public-internals")]
 pub use traits::{Float, HalfRep};
+
+#[repr(C)]
+pub struct Complex<F> {
+    pub re: F,
+    pub im: F,
+}

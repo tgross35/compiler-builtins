@@ -49,6 +49,7 @@ pub trait Tuple {
     type T0;
     type T1;
     type T2;
+    type T3;
 }
 
 /// If a tuple contains fewer types than provided in `Tuple`, they use this struct.
@@ -68,18 +69,28 @@ impl<T0> Tuple for (T0,) {
     type T0 = T0;
     type T1 = Unused;
     type T2 = Unused;
+    type T3 = Unused;
 }
 
 impl<T0, T1> Tuple for (T0, T1) {
     type T0 = T0;
     type T1 = T1;
     type T2 = Unused;
+    type T3 = Unused;
 }
 
 impl<T0, T1, T2> Tuple for (T0, T1, T2) {
     type T0 = T0;
     type T1 = T1;
     type T2 = T2;
+    type T3 = Unused;
+}
+
+impl<T0, T1, T2, T3> Tuple for (T0, T1, T2, T3) {
+    type T0 = T0;
+    type T1 = T1;
+    type T2 = T2;
+    type T3 = T3;
 }
 
 /* implement `TupleCall` */
@@ -160,6 +171,20 @@ where
         let mut t3 = T3::default();
         f(self.0, &mut t2, &mut t3);
         (t2, t3)
+    }
+}
+
+impl<T1, T2, T3, T4, R> TupleCall<fn(T1, T2, T3, T4) -> R> for (T1, T2, T3, T4)
+where
+    T1: fmt::Debug,
+    T2: fmt::Debug,
+    T3: fmt::Debug,
+    T4: fmt::Debug,
+{
+    type Output = R;
+
+    fn call(self, f: fn(T1, T2, T3, T4) -> R) -> Self::Output {
+        f(self.0, self.1, self.2, self.3)
     }
 }
 

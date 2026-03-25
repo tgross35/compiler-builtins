@@ -17,7 +17,7 @@ pub fn default_ulp(ctx: &CheckCtx) -> Option<u32> {
     // ULP compared to the infinite (MPFR) result.
     let mut ulp = match ctx.base_name {
         // Basic arithmetic needs to always be precise.
-        Bn::Add | Bn::Sub | Bn::Mul | Bn::Div => 0,
+        Bn::Add | Bn::Sub | Bn::Mul | Bn::Div | Bn::MulCplx => 0,
         // FIXME(correctness): we need a better powi implementation (though this is no worse
         // than C).
         Bn::Powi if ctx.fn_ident == Id::Powif64 => 10_000,
@@ -553,6 +553,12 @@ impl MaybeOverride<(f32, f32, f32)> for SpecialCase {}
 impl MaybeOverride<(f64, f64, f64)> for SpecialCase {}
 #[cfg(f128_enabled)]
 impl MaybeOverride<(f128, f128, f128)> for SpecialCase {}
+
+impl MaybeOverride<(f16, f16, f16, f16)> for SpecialCase {}
+impl MaybeOverride<(f32, f32, f32, f32)> for SpecialCase {}
+impl MaybeOverride<(f64, f64, f64, f64)> for SpecialCase {}
+#[cfg(f128_enabled)]
+impl MaybeOverride<(f128, f128, f128, f128)> for SpecialCase {}
 
 impl MaybeOverride<(i32,)> for SpecialCase {}
 impl MaybeOverride<(i64,)> for SpecialCase {}

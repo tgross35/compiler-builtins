@@ -131,6 +131,14 @@ impl<F: Float, I: Int> EitherPrim<Domain<F>, Domain<I>> {
         Domain::UNBOUNDED.into_prim_float(),
     ];
 
+    /// {x1, x2, x3, x4} ∈ ℝ
+    const UNBOUNDED4: [Self; 4] = [
+        Domain::UNBOUNDED.into_prim_float(),
+        Domain::UNBOUNDED.into_prim_float(),
+        Domain::UNBOUNDED.into_prim_float(),
+        Domain::UNBOUNDED.into_prim_float(),
+    ];
+
     /// {x1, x2} ∈ ℝ, one float and one int
     const UNBOUNDED_F_I: [Self; 2] = [
         Domain::UNBOUNDED.into_prim_float(),
@@ -230,6 +238,9 @@ pub fn get_domain<F: Float, I: Int>(
         BaseName::Mul => &EitherPrim::UNBOUNDED2[..],
         BaseName::Div => &EitherPrim::UNBOUNDED2[..],
         BaseName::Powi => &EitherPrim::UNBOUNDED2[..],
+
+        // Complex
+        BaseName::MulCplx => &EitherPrim::UNBOUNDED4[..],
 
         // Comparison
         BaseName::Eq => &EitherPrim::UNBOUNDED2[..],

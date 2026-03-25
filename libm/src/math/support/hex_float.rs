@@ -459,7 +459,10 @@ mod hex_fmt {
         T2: Copy + DisplayHex,
     {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "({}, {})", Hex(self.0), Hex(self.1))
+            f.debug_tuple("")
+                .field(&Hex(self.0))
+                .field(&Hex(self.1))
+                .finish()
         }
     }
 
@@ -470,7 +473,28 @@ mod hex_fmt {
         T3: Copy + DisplayHex,
     {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "({}, {}, {})", Hex(self.0), Hex(self.1), Hex(self.2))
+            f.debug_tuple("")
+                .field(&Hex(self.0))
+                .field(&Hex(self.1))
+                .field(&Hex(self.2))
+                .finish()
+        }
+    }
+
+    impl<T1, T2, T3, T4> DisplayHex for (T1, T2, T3, T4)
+    where
+        T1: Copy + DisplayHex,
+        T2: Copy + DisplayHex,
+        T3: Copy + DisplayHex,
+        T4: Copy + DisplayHex,
+    {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.debug_tuple("")
+                .field(&Hex(self.0))
+                .field(&Hex(self.1))
+                .field(&Hex(self.2))
+                .field(&Hex(self.3))
+                .finish()
         }
     }
 }

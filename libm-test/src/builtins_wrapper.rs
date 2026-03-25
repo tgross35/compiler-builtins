@@ -22,6 +22,13 @@ macro_rules! cb_op {
         cb_op!($mod, $cb_name, $new_name, (a: $ty, b: $ty) -> $ty);
     };
 
+    (@binop_cplx $ty:ty, $mod:ident, $cb_name:ident, $new_name:ident) => {
+        pub fn $new_name(a: $ty, b: $ty, c: $ty, d: $ty) -> ($ty, $ty) {
+            let z = compiler_builtins::float::$mod::$cb_name(a, b, c, d);
+            (z.re, z.im)
+        }
+    };
+
     // Cmp signatures. See the documentation in cmp.rs regarding the result.
     (@cmp_eq $ty:ty, $mod:ident, $cb_name:ident, $new_name:ident) => {
         pub fn $new_name(a: $ty, b: $ty) -> bool {
@@ -127,6 +134,13 @@ cb_op!(pow, __powisf2, powif32, (a: f32, b: i32) -> f32);
 cb_op!(pow, __powidf2, powif64, (a: f64, b: i32) -> f64);
 #[cfg(f128_enabled)]
 cb_op!(pow, __powitf2, powif128, (a: f128, b: i32) -> f128);
+
+#[cfg(f16_enabled)]
+cb_op!(@binop_cplx f16, cmul, __mulhc3, mul_cplx_f16);
+cb_op!(@binop_cplx f32, cmul, __mulsc3, mul_cplx_f32);
+cb_op!(@binop_cplx f64, cmul, __muldc3, mul_cplx_f64);
+#[cfg(f128_enabled)]
+cb_op!(@binop_cplx f128, cmul, __multc3, mul_cplx_f128);
 
 #[cfg(f16_enabled)]
 cb_op!(@cmp_eq f16, cmp, __eqhf2, eqf16);

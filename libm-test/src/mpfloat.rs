@@ -11,13 +11,17 @@ use rug::float::Round::Nearest;
 use rug::ops::{
     AddAssignRound, DivAssignRound, MulAssignRound, PowAssignRound, RemAssignRound, SubAssignRound,
 };
-pub use rug::{Float as MpFloat, Integer as MpInt};
+pub use rug::{Complex as MpComplex, Float as MpFloat, Integer as MpInt};
 
 use crate::{Arg0, Arg1, Arg2, Float, MathOp, Ret0, Ret1};
 
 /// Create a multiple-precision float with the correct number of bits for a concrete float type.
 fn new_mpfloat<F: Float>() -> MpFloat {
     MpFloat::new(F::SIG_BITS + 1)
+}
+
+fn new_mpcplx<F: Float>() -> MpComplex {
+    MpComplex::new(F::SIG_BITS + 1)
 }
 
 /// Set subnormal emulation and convert to a concrete float type.
@@ -27,6 +31,17 @@ where
 {
     mp.subnormalize_ieee_round(ord, Nearest);
     (&*mp).az::<F>()
+}
+
+/// Set subnormal emulation and convert to a concrete float type.
+fn prep_retval_cplx<F>(mp: &mut MpComplex, ord: (Ordering, Ordering)) -> (F, F)
+where
+    for<'a> &'a MpFloat: az::Cast<F>,
+{
+    (
+        prep_retval(mp.mut_real(), ord.0),
+        prep_retval(mp.mut_imag(), ord.1),
+    )
 }
 
 /// Structures that represent a float operation.
@@ -295,6 +310,10 @@ libm_macros::for_each_function! {
         ltf64,
         modf,
         modff,
+        mul_cplx_f128,
+        mul_cplx_f16,
+        mul_cplx_f32,
+        mul_cplx_f64,
         mulf128,
         mulf16,
         mulf32,
@@ -586,6 +605,21 @@ macro_rules! impl_op_for_ty_all {
                     this.1.assign(input.1);
                     let ord = this.0.mul_assign_round(&this.1, Nearest);
                     prep_retval::<Self::RustRet>(&mut this.0, ord)
+                }
+            }
+
+            impl MpOp for crate::op::[<mul_cplx_ $fty>]::Routine {
+                type MpTy = (MpComplex, MpComplex);
+
+                fn new_mp() -> Self::MpTy {
+                    (new_mpcplx::<Arg0<Self>>(), new_mpcplx::<Arg2<Self>>())
+                }
+
+                fn run(this: &mut Self::MpTy, input: Self::RustArgs) -> Self::RustRet {
+                    this.0.assign((input.0,input.1));
+                    this.1.assign((input.2,input.3));
+                    let ord = this.0.mul_assign_round(&this.1, (Nearest, Nearest));
+                    prep_retval_cplx(&mut this.0, ord)
                 }
             }
 

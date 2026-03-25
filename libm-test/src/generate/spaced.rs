@@ -6,7 +6,7 @@ use libm::support::{Float, Int, MinInt};
 use crate::domain::get_domain;
 use crate::num::full_range;
 use crate::run_cfg::{int_range, iteration_count};
-use crate::{Arg0, Arg1, Arg2, CheckCtx, MathOp, linear_ints, logspace};
+use crate::{Arg0, Arg1, Arg2, Arg3, CheckCtx, MathOp, linear_ints, logspace};
 
 /// Generate a sequence of inputs that eiher cover the domain in completeness (for smaller float
 /// types and single argument functions) or provide evenly spaced inputs across the domain with
@@ -175,6 +175,63 @@ macro_rules! impl_spaced_input {
                             .checked_mul(steps1)
                             .unwrap()
                             .checked_mul(steps2)
+                            .unwrap();
+
+                        (EitherIter::B(iter), count)
+                    }
+                }
+            }
+        }
+
+        impl<Op> SpacedInput<Op> for ($fty, $fty, $fty, $fty)
+        where
+            Op: MathOp<RustArgs = Self>,
+        {
+            fn get_cases(ctx: &CheckCtx) -> (impl Iterator<Item = Self>, u64) {
+                let max_steps0 = iteration_count(ctx, 0);
+                let max_steps1 = iteration_count(ctx, 1);
+                let max_steps2 = iteration_count(ctx, 2);
+                let max_steps3 = iteration_count(ctx, 3);
+                // `f16` can be exhaustive tested if `LIBM_EXTENSIVE_TESTS` is incresed.
+                match value_count::<Arg0<Op>>() {
+                    Some(count)
+                        if count <= max_steps0
+                            && count <= max_steps1
+                            && count <= max_steps2
+                            && count < max_steps3 =>
+                    {
+                        let iter = all_values().flat_map(|first| {
+                            all_values().flat_map(move |second| {
+                                all_values().flat_map(move |third| {
+                                    all_values().map(move |fourth| (first, second, third, fourth))
+                                })
+                            })
+                        });
+                        (EitherIter::A(iter), count.checked_pow(3).unwrap())
+                    }
+                    _ => {
+                        let (iter0, steps0) = logspace_steps::<Arg0<Op>>(ctx, 0, max_steps0);
+                        let (iter1, steps1) = logspace_steps::<Arg1<Op>>(ctx, 1, max_steps1);
+                        let (iter2, steps2) = logspace_steps::<Arg2<Op>>(ctx, 2, max_steps2);
+                        let (iter3, steps3) = logspace_steps::<Arg3<Op>>(ctx, 3, max_steps3);
+
+                        let iter = iter0
+                            .flat_map(move |first| iter1.clone().map(move |second| (first, second)))
+                            .flat_map(move |(first, second)| {
+                                iter2.clone().map(move |third| (first, second, third))
+                            })
+                            .flat_map(move |(first, second, third)| {
+                                iter3
+                                    .clone()
+                                    .map(move |fourth| (first, second, third, fourth))
+                            });
+
+                        let count = steps0
+                            .checked_mul(steps1)
+                            .unwrap()
+                            .checked_mul(steps2)
+                            .unwrap()
+                            .checked_mul(steps3)
                             .unwrap();
 
                         (EitherIter::B(iter), count)

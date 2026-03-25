@@ -119,6 +119,8 @@ pub type Arg0<Op> = <OpRustArgs<Op> as Tuple>::T0;
 pub type Arg1<Op> = <OpRustArgs<Op> as Tuple>::T1;
 /// Get the type of the third Rust argument.
 pub type Arg2<Op> = <OpRustArgs<Op> as Tuple>::T2;
+/// Get the type of the fourth Rust argument.
+pub type Arg3<Op> = <OpRustArgs<Op> as Tuple>::T3;
 
 /// If the Rust return type is a tuple, get the first type.
 pub type Ret0<Op> = <OpRustRet<Op> as Tuple>::T0;

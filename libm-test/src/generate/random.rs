@@ -87,6 +87,23 @@ macro_rules! impl_random_input {
             }
         }
 
+        impl RandomInput for ($fty, $fty, $fty, $fty) {
+            fn get_cases(ctx: &CheckCtx) -> (impl Iterator<Item = Self>, u64) {
+                let count0 = iteration_count(ctx, 0);
+                let count1 = iteration_count(ctx, 1);
+                let count2 = iteration_count(ctx, 2);
+                let count3 = iteration_count(ctx, 3);
+                let iter = random_floats(count0).flat_map(move |f1: $fty| {
+                    random_floats(count1).flat_map(move |f2: $fty| {
+                        random_floats(count2).flat_map(move |f3: $fty| {
+                            random_floats(count3).map(move |f4: $fty| (f1, f2, f3, f4))
+                        })
+                    })
+                });
+                (iter, count0 * count1 * count2 * count3)
+            }
+        }
+
         impl RandomInput for (i32, $fty) {
             fn get_cases(ctx: &CheckCtx) -> (impl Iterator<Item = Self>, u64) {
                 let count0 = iteration_count(ctx, 0);

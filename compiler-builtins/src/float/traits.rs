@@ -16,6 +16,7 @@ pub trait Float:
     + ops::MulAssign
     + ops::Add<Output = Self>
     + ops::Sub<Output = Self>
+    + ops::Mul<Output = Self>
     + ops::Div<Output = Self>
     + ops::Rem<Output = Self>
 {
