@@ -160,21 +160,21 @@ where
 
     // Start with an initial guess for `r = 1 / sqrt(m)` from the table, and shift `m` as an
     // initial value for `s = sqrt(m)`. See the module documentation for details.
-    let r1_u0: F::ISet1 = F::ISet1::cast_from(RSQRT_TAB[i]) << (F::ISet1::BITS - 16);
-    let s1_u2: F::ISet1 = ((m_u2) >> (F::BITS - F::ISet1::BITS)).cast();
+    let r0_u0: F::ISet1 = F::ISet1::cast_from(RSQRT_TAB[i]) << (F::ISet1::BITS - 16);
+    let s0_u2: F::ISet1 = ((m_u2) >> (F::BITS - F::ISet1::BITS)).cast();
 
     // Perform iterations, if any, at quarter width (used for `f128`).
-    let (r1_u0, _s1_u2) = goldschmidt::<F, F::ISet1>(r1_u0, s1_u2, F::SET1_ROUNDS, false);
+    let (r1_u0, _s1_u2) = goldschmidt::<F, F::ISet1>(r0_u0, s0_u2, F::SET1_ROUNDS, false);
 
     // Widen values and perform iterations at half width (used for `f64` and `f128`).
-    let r2_u0: F::ISet2 = F::ISet2::from(r1_u0) << (F::ISet2::BITS - F::ISet1::BITS);
-    let s2_u2: F::ISet2 = ((m_u2) >> (F::BITS - F::ISet2::BITS)).cast();
-    let (r2_u0, _s2_u2) = goldschmidt::<F, F::ISet2>(r2_u0, s2_u2, F::SET2_ROUNDS, false);
+    let r1_u0: F::ISet2 = F::ISet2::from(r1_u0) << (F::ISet2::BITS - F::ISet1::BITS);
+    let s1_u2: F::ISet2 = ((m_u2) >> (F::BITS - F::ISet2::BITS)).cast();
+    let (r2_u0, _s2_u2) = goldschmidt::<F, F::ISet2>(r1_u0, s1_u2, F::SET2_ROUNDS, false);
 
     // Perform final iterations at full width (used for all float types).
-    let r_u0: F::Int = F::Int::from(r2_u0) << (F::BITS - F::ISet2::BITS);
-    let s_u2: F::Int = m_u2;
-    let (_r_u0, s_u2) = goldschmidt::<F, F::Int>(r_u0, s_u2, F::FINAL_ROUNDS, true);
+    let r2_u0: F::Int = F::Int::from(r2_u0) << (F::BITS - F::ISet2::BITS);
+    let s2_u2: F::Int = m_u2;
+    let (_r_u0, s_u2) = goldschmidt::<F, F::Int>(r2_u0, s2_u2, F::FINAL_ROUNDS, true);
 
     // Shift back to mantissa position.
     let mut m = s_u2 >> (F::EXP_BITS - 2);
