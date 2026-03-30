@@ -351,6 +351,7 @@ pub trait HInt: Int {
     // FIXME(msrv): Use funnel shifts from `core` as a trait on `Int` when available.
 
     /// Concatenate `self` and `right`, shift by `shift`, and return the upper half.
+    #[allow(unused)]
     fn funnel_shl(self, right: Self, shift: u32) -> Self {
         assert!(!Self::SIGNED, "unsupported for signed integers");
         assert!(shift < Self::BITS, "attempt to funnel shift with overflow");
@@ -359,6 +360,7 @@ pub trait HInt: Int {
     }
 
     /// Concatenate `self` and `right`, shift by `shift`, and return the lower half.
+    #[allow(unused)]
     fn funnel_shr(self, right: Self, shift: u32) -> Self {
         assert!(!Self::SIGNED, "unsupported for signed integers");
         assert!(shift < Self::BITS, "attempt to funnel shift with overflow");
