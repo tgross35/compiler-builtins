@@ -165,69 +165,49 @@ macro_rules! impl_common {
                 Self { lo, hi }
             }
         }
-
-        impl ops::Shr<u32> for $ty {
-            type Output = Self;
-
-            fn shr(self, rhs: u32) -> Self::Output {
-                debug_assert!(rhs < Self::BITS, "attempt to shift right with overflow");
-
-                // Set up an array with the input in the low half, zeros in the upper half
-                let mut words = [Word::ZERO; U256_WORDS * 2];
-                words[..U256_WORDS].copy_from_slice(&self.to_words());
-
-                if <$ty>::SIGNED {
-                    // For i256, branchlessly set the upper words to all ones if the input
-                    // is negative.
-                    let top_word = words[U256_WORDS - 1].signed() >> (Word::BITS - 1);
-                    for x in &mut words[U256_WORDS..] {
-                        *x = top_word.unsigned();
-                    }
-                }
-
-                let shift = rhs & 255; // limit to 255 in cases of overflow
-                let word_shift = (shift / Word::BITS) as usize;
-                let bit_shift = shift % Word::BITS;
-
-                let mut ret: [Word; U256_WORDS] = [0; _];
-
-                // Each output word is a coarse (word-sized) shift plus a small bit shift. Note that
-                // these loops get unrolled.
-                for i in 0..U256_WORDS {
-                    if i < (U256_WORDS - 1) {
-                        let hi = words[word_shift + i + 1];
-                        let lo = words[word_shift + i];
-
-                        ret[i] = <Word as HInt>::funnel_shr(hi, lo, bit_shift);
-                    } else if <$ty>::SIGNED {
-                        // The upper word doesn't get any sign bits via a funnel shift, so we need
-                        // an arithmetic shift to preserve sign.
-                        let mut x = words[word_shift + i].signed();
-                        x >>= bit_shift;
-                        ret[i] = x.unsigned();
-                    } else {
-                        ret[i] = words[word_shift + i] >> bit_shift;
-                    }
-                }
-
-                <$ty>::from_words(ret)
-            }
-        }
     };
 }
 
-impl ops::Shl<u32> for u256 {
+impl ops::Shr<u32> for u256 {
     type Output = Self;
 
-    fn shl(self, rhs: u32) -> Self::Output {
-        debug_assert!(rhs < Self::BITS, "attempt to shift left with overflow");
+    // #[inline(never)]
+    fn shr(self, rhs: u32) -> Self::Output {
+        debug_assert!(rhs < Self::BITS, "attempt to shift right with overflow");
+
+        if rhs < 128 {
+            let lo = u128::funnel_shr(self.hi, self.lo, rhs);
+            let hi = self.hi >> rhs;
+            Self { lo, hi }
+        } else {
+            let lo = self.hi >> (rhs - 128);
+            Self { lo, hi: 0 }
+        }
+    }
+}
+
+impl ops::Shr<u32> for i256 {
+    type Output = Self;
+
+    // #[inline(never)]
+    fn shr(self, rhs: u32) -> Self::Output {
+        debug_assert!(rhs < Self::BITS, "attempt to shift right with overflow");
 
         // Set up an array with the input in the low half, zeros in the upper half
         let mut words = [Word::ZERO; U256_WORDS * 2];
-        words[U256_WORDS..].copy_from_slice(&self.to_words());
+        words[..U256_WORDS].copy_from_slice(&self.to_words());
+
+        if i256::SIGNED {
+            // For i256, branchlessly set the upper words to all ones if the input
+            // is negative.
+            let top_word = words[U256_WORDS - 1].signed() >> (Word::BITS - 1);
+            for x in &mut words[U256_WORDS..] {
+                *x = top_word.unsigned();
+            }
+        }
 
         let shift = rhs & 255; // limit to 255 in cases of overflow
-        let word_shift = U256_WORDS - (shift / Word::BITS) as usize;
+        let word_shift = (shift / Word::BITS) as usize;
         let bit_shift = shift % Word::BITS;
 
         let mut ret: [Word; U256_WORDS] = [0; _];
@@ -235,17 +215,41 @@ impl ops::Shl<u32> for u256 {
         // Each output word is a coarse (word-sized) shift plus a small bit shift. Note that
         // these loops get unrolled.
         for i in 0..U256_WORDS {
-            if i == 0 {
-                ret[i] = words[word_shift + i] << bit_shift;
-            } else {
-                let hi = words[word_shift + i];
-                let lo = words[word_shift + i - 1];
+            if i < (U256_WORDS - 1) {
+                let hi = words[word_shift + i + 1];
+                let lo = words[word_shift + i];
 
-                ret[i] = <Word as HInt>::funnel_shl(hi, lo, bit_shift);
+                ret[i] = <Word as HInt>::funnel_shr(hi, lo, bit_shift);
+            } else if i256::SIGNED {
+                // The upper word doesn't get any sign bits via a funnel shift, so we need
+                // an arithmetic shift to preserve sign.
+                let mut x = words[word_shift + i].signed();
+                x >>= bit_shift;
+                ret[i] = x.unsigned();
+            } else {
+                ret[i] = words[word_shift + i] >> bit_shift;
             }
         }
 
-        u256::from_words(ret)
+        i256::from_words(ret)
+    }
+}
+
+impl ops::Shl<u32> for u256 {
+    type Output = Self;
+
+    #[inline(never)]
+    fn shl(self, rhs: u32) -> Self::Output {
+        debug_assert!(rhs < Self::BITS, "attempt to shift left with overflow");
+
+        if rhs < 128 {
+            let hi = u128::funnel_shl(self.hi, self.lo, rhs);
+            let lo = self.lo << rhs;
+            Self { lo, hi }
+        } else {
+            let hi = self.lo << (rhs - 128);
+            Self { lo: 0, hi }
+        }
     }
 }
 
