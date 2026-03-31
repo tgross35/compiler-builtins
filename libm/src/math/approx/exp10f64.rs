@@ -1,4 +1,4 @@
-use super::{exp2, modf, pow};
+use super::super::{exp2, modf, pow};
 
 const LN10: f64 = 3.32192809488736234787031942948939;
 const P10: &[f64] = &[
@@ -8,7 +8,7 @@ const P10: &[f64] = &[
 
 /// Calculates 10 raised to the power of `x` (f64).
 #[cfg_attr(assert_no_panic, no_panic::no_panic)]
-pub fn exp10(x: f64) -> f64 {
+pub fn exp10f64(x: f64) -> f64 {
     select_implementation! {
         name: x87_exp10,
         use_arch_required: x86_no_sse2,
