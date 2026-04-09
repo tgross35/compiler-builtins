@@ -44,7 +44,7 @@ criterion = { version = "0.8.2", default-features = false, features = ["cargo_be
 getopts = "0.2.24"
 getrandom = "0.4.1"
 gmp-mpfr-sys = { version = "1.6.8", default-features = false }
-gungraun = "0.17.2"
+gungraun = "0.18.0"
 heck = "0.5.0"
 indicatif = { version = "0.18.3", default-features = false }
 libm = { path = "libm", default-features = false }
