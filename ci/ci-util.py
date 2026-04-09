@@ -19,7 +19,8 @@ from os import getenv
 from pathlib import Path
 from typing import TypedDict, Self
 
-USAGE = cleandoc("""
+USAGE = cleandoc(
+    """
     usage:
 
     ./ci/ci-util.py <COMMAND> [flags]
@@ -43,7 +44,8 @@ USAGE = cleandoc("""
             Exit with success if the pull request contains a line starting with
             `ci: allow-regressions`, indicating that regressions in benchmarks should
             be accepted. Otherwise, exit 1.
-    """)
+    """
+)
 
 REPO_ROOT = Path(__file__).parent.parent
 GIT = ["git", "-C", REPO_ROOT]
@@ -501,7 +503,8 @@ def main():
             ctx = Context()
             ctx.emit_workflow_output()
         case ["locate-baseline", *flags]:
-            locate_baseline(flags)
+            return
+            # locate_baseline(flags)
         case ["handle-bench-regressions", *args]:
             handle_bench_regressions(args)
         case ["--help" | "-h"]:
