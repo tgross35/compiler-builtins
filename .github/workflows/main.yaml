@@ -280,7 +280,7 @@ jobs:
 
   benchmarks:
     name: Benchmarks
-    timeout-minutes: 30
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
